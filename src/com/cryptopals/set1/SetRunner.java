@@ -28,13 +28,14 @@ public class SetRunner {
 	{
 		// challenge 3
 		byte[] c3Ciphertext = HexUtils.toByteArray("1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736");
+		//byte[] c3Ciphertext = HexUtils.toByteArray("196d283d28");
 		System.out.println("possible decoded values for ciphertext: ");
 		for(int i = 0; i < 255; i++)
 		{
 			byte[] decoded = XorCipher.single(c3Ciphertext, (byte)i);
 			double score = HexUtils.stringMetric(decoded);
 			if(score > 0.95) // at least 95% score 
-				System.out.println(HexUtils.toNormalStr(decoded) + " - Score: " + score);
+				System.out.println(HexUtils.toNormalStr(decoded) + " - Score: " + score + " Key: " + (char)i);
 		}
 	}
 	
@@ -52,10 +53,11 @@ public class SetRunner {
 				byte[] decoded = XorCipher.single(HexUtils.toByteArray(c4Line), (byte)i);
 				double score = HexUtils.stringMetric(decoded);
 				if(score > 0.95) // at least 95% score 
-					System.out.println("Line " + c4LineNum + ": " + HexUtils.toNormalStr(decoded) + " - Score: " + score + " Key: " + i);
+					System.out.println("Line " + c4LineNum + ": " + HexUtils.toNormalStr(decoded) + " - Score: " + score + " Key: " + (char)i);
 			}
 			c4LineNum++;
 		}
+		c4Input.close();
 	}
 	
 	public static void challenge5() throws Exception
@@ -72,6 +74,9 @@ public class SetRunner {
 	public static void challenge6() throws Exception
 	{
 		// challege 6
+		System.out.println("Testing Hamming Distance: " + HexUtils.HammingDistance(
+				"this is a test".getBytes("UTF-8"), "wokka wokka!!!".getBytes("UTF-8")));
+		
 		String filetext = "";
 		String line;
 		BufferedReader input = new BufferedReader(new FileReader(new File("resources/set1_challenge6.txt")));
@@ -79,18 +84,31 @@ public class SetRunner {
 		{
 			filetext += line;
 		}
+		input.close();
 		byte[] ciphertext = Base64Converter.Base64toBytes(filetext);
-		System.out.println("Testing Hamming Distance: " + HexUtils.HammingDistance(
-				"this is a test".getBytes("UTF-8"), "wokka wokka!!!".getBytes("UTF-8")));
+		//byte[] plaintext = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean sed nisl in lacus feugiat commodo at vel purus. Nulla ornare dui lectus. In hac habitasse platea dictumst. Vestibulum tempus ante eu tincidunt dapibus. Maecenas magna eros, congue ac metus et, porttitor ultricies leo. Suspendisse mi massa, egestas et dui in, tristique semper felis. Cras in mi eros.".getBytes("ASCII");
+		//byte[] testkey = "HelloWorldPassword".getBytes("ASCII");
+		//byte[] ciphertext = XorCipher.repeating(plaintext, testkey);
+		
+		//System.out.println(HexUtils.toHexStr(ciphertext));
 		
 		ArrayList<KeyValuePair<Integer, Integer>> nrmlEditDistance = new ArrayList<KeyValuePair<Integer, Integer>>();
 		
 		// find the normalized distance for the keysizes
-		for(int KEYSIZE=2; KEYSIZE<41; KEYSIZE++)
+		for(int KEYSIZE=2; KEYSIZE<40; KEYSIZE++)
 		{
-			byte[] data1 = Arrays.copyOfRange(ciphertext, 0, KEYSIZE);
-			byte[] data2 = Arrays.copyOfRange(ciphertext, KEYSIZE, KEYSIZE + KEYSIZE);
-			nrmlEditDistance.add(new KeyValuePair<Integer, Integer>(KEYSIZE, HexUtils.HammingDistance(data1, data2) / KEYSIZE));
+			byte[] data1 = Arrays.copyOfRange(ciphertext, 0 * KEYSIZE, 1 * KEYSIZE);
+			byte[] data2 = Arrays.copyOfRange(ciphertext, 1 * KEYSIZE, 2 * KEYSIZE);
+			byte[] data3 = Arrays.copyOfRange(ciphertext, 2 * KEYSIZE, 3 * KEYSIZE);
+			byte[] data4 = Arrays.copyOfRange(ciphertext, 3 * KEYSIZE, 4 * KEYSIZE);
+			int totaldist = HexUtils.HammingDistance(data1, data2);
+			totaldist += HexUtils.HammingDistance(data1, data3);
+			totaldist += HexUtils.HammingDistance(data1, data4);
+			totaldist += HexUtils.HammingDistance(data2, data3);
+			totaldist += HexUtils.HammingDistance(data2, data4);
+			totaldist += HexUtils.HammingDistance(data3, data4);
+			
+			nrmlEditDistance.add(new KeyValuePair<Integer, Integer>(KEYSIZE, totaldist / (KEYSIZE)));
 		}
 		
 		// sort our list to get the top 4
@@ -99,47 +117,72 @@ public class SetRunner {
 			public int compare(KeyValuePair<Integer, Integer> arg0, KeyValuePair<Integer, Integer> arg1) {
 				return arg0.getValue().compareTo(arg1.getValue());
 			}
-			});
+		});
 		
-		System.out.println("Best key sizes are: " + nrmlEditDistance.get(0).getKey()
-				+ ", " + nrmlEditDistance.get(1).getKey() 
-				+ ", " + nrmlEditDistance.get(2).getKey()
-				+ ", " + nrmlEditDistance.get(3).getKey());
+		// the best seem to be 5, 2, 3, and 11
+		// my guess is 5
+		System.out.println("Best key sizes are: " + nrmlEditDistance.get(0).getKey()  + "(" + nrmlEditDistance.get(0).getValue()
+				+ "), " + nrmlEditDistance.get(1).getKey() + "(" + nrmlEditDistance.get(1).getValue() 
+				+ "), " + nrmlEditDistance.get(2).getKey() + "(" + nrmlEditDistance.get(2).getValue() 
+				+ "), " + nrmlEditDistance.get(3).getKey() + "(" + nrmlEditDistance.get(3).getValue() + ")");
 		
-		
-		
-		// run through the top 4 keysizes
-		for(int i=0; i<4; i++)
+		// you can change this to try the top keysizes
+		for(int i=0; i<1; i++)
 		{
 			int keysize = nrmlEditDistance.get(i).getKey();
 			System.out.println("trying keysize " + keysize);
 			byte[] key = new byte[keysize];
+			
+			// split the data into keysize length blocks
+			byte[][] data = new byte[ciphertext.length/keysize][keysize];
+			int pos = 0;
+			for(int j=0; j<ciphertext.length/keysize; j++)
+			{
+				for(int l=0; l<keysize; l++)
+					data[j][l] = ciphertext[pos++];
+			}
+					
+			byte[][] transpose = new byte[keysize][ciphertext.length/keysize];
+			
+			// transpose the data to let us access elements with the same xor key
+			for(int r=0; r<data.length; r++)
+			{
+				for(int c=0; c<data[0].length; c++)
+				{
+					transpose[c][r] = data[r][c];
+				}
+			}
+			
 			for(int k=0; k<keysize; k++)
 			{
-				// now solve the individual bytes of the key
-				int blocksize = ciphertext.length / keysize;
-				byte[] block = new byte[blocksize];
-				for(int j=0; j<blocksize; j++) // transpose every keysize byte into our block
-					block[j] = ciphertext[(j * keysize) + k];
-				
 				// here we should have a buffer with every byte using the same single byte xor key
 				// now solve the single byte xor
+				//System.out.print("possible values for key pos " + k + ": ");
 				for(int j = 0; j < 255; j++)
 				{
-					byte[] decoded = XorCipher.single(block, (byte)j);
+					byte[] decoded = XorCipher.single(transpose[k], (byte)j);
 					double score = HexUtils.stringMetric(decoded);
-					if(score > 0.95) // at least 95% score
+					if(score > 0.85) // mess with this score to get values to come in and drop out.
+									// anywhere from 80% to 95% works
 					{
-						System.out.println(HexUtils.toNormalStr(decoded) + " - Score: " + score + " Key: " + j);
+						//System.out.print((char)j + ", ");
 						key[k] = (byte)j;
 					}
 				}
+				//System.out.println();
 			}
+			System.out.println("Guessed Key: " + HexUtils.toNormalStr(key));
+			System.out.println("decrypted data is in 'resources/set1_challenge6_decoded.txt'");
+			FileOutputStream output = new FileOutputStream(new File("resources/set1_challenge6_decoded.txt"));
+			output.write(XorCipher.repeating(ciphertext, key));
+			output.close();
 		}
 
 	}
 
 	public static void main(String[] args) throws Exception { // yay just throw exceptions at hotspot!
+		
+		/*
 		challenge1();
 		System.out.println("----------------------------------------");
 		challenge2();		
@@ -150,6 +193,7 @@ public class SetRunner {
 		System.out.println("----------------------------------------");
 		challenge5();		
 		System.out.println("----------------------------------------");
+		*/
 		challenge6();		
 		
 	}

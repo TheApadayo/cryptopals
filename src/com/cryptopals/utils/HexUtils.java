@@ -53,13 +53,15 @@ public class HexUtils {
 		int count = 0;
 		for(byte b : arr)
 		{
-			// find a better metric
-			if( (b >= 'a' && b <= 'z') || b >= 'A' && b <= 'Z' || // chars
-					b == ' ' || b == '\'' || b == '.' || b == '!' || b == '?' ||  // punctuaion 
-					b == '\n' || b == '\t' || b == '\r') // escape chars
+			// stuff is weighted how I felt like it 
+			if( (b >= 'a' && b <= 'z') || b == ' ')
+				count += 4;
+			if( (b >= 'A' && b <= 'Z') || b == '\'' || b == '.' || b == '!' || b == '?' )
+				count += 2;
+			if( (b >= '0' && b <= '9') || b == '\n' || b == '\t' || b == '\r')
 				count++;
 		}
-		return (double) count / arr.length;
+		return (double) count / (arr.length * 4);
 	}
 	
 	private static int countBits(byte b)

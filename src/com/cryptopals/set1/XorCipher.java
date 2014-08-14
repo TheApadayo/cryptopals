@@ -1,5 +1,7 @@
 package com.cryptopals.set1;
 
+import com.cryptopals.utils.HexUtils;
+
 public class XorCipher {
 	
 	public static byte[] fixed(byte[] b1, byte[] b2) {
@@ -14,20 +16,22 @@ public class XorCipher {
 	
 	public static byte[] single(byte[] arr, byte key)
 	{
+		byte[] ret = new byte[arr.length];
 		for(int i=0; i<arr.length; i++)
 		{
-			arr[i] ^= key;
+			ret[i] = (byte) (arr[i] ^ key);
 		}
-		return arr;
+		return ret;
 	}
 	
 	public static byte[] repeating(byte[] arr, byte[] key)
 	{
+		byte[] ret = new byte[arr.length];
 		for(int i=0; i<arr.length; i++)
 		{
-			arr[i] = (byte)(arr[i] ^ key[i % key.length]);
+			ret[i] = (byte)(arr[i] ^ key[i % key.length]);
 		}
-		return arr;
+		return ret;
 	}
 
 }
