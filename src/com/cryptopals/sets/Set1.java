@@ -1,12 +1,13 @@
-package com.cryptopals.set1;
+package com.cryptopals.sets;
 
 import java.io.*;
 import java.util.*;
 
 import com.cryptopals.aes.*;
+import com.cryptopals.simpleciphers.*;
 import com.cryptopals.utils.*;
 
-public class SetRunner {
+public class Set1 {
 	
 	public static void challenge1()
 	{
@@ -173,13 +174,16 @@ public class SetRunner {
 	{
 		byte[] keyBytes = "YELLOW SUBMARINE".getBytes("UTF-8");
 		AESKey k = new AESKey(keyBytes);
-		// byte[] cipherText = FileUtils.readBase64("resources/set1_challenge7_test.txt");
-		byte[] plainText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec elit sapien, laoreet non sem eget, laoreet pellentesque lectus. Aliquam tincidunt purus nec nunc mollis, et lacinia leo lobortis. Nunc porta tincidunt libero, aliquet tempor tellus vestibulum ac. In euismod quis leo in feugiat. Vivamus rutrum, nisi eget dapibus molestie, odio magna consectetur dui, vel condimentum erat nulla a felis. Ut eu facilisis neque. Nunc a hendrerit metus. Morbi facilisis nibh ante. Vestibulum sem magna, semper ut est in, eleifend egestas lacus. Mauris sit amet arcu sollicitudin, malesuada augue nec, sagittis augue. Donec consectetur hendrerit purus a mattis. Ut euismod sapien sed fringilla porttitor. Nullam rutrum fringilla commodo. Aliquam eu luctus erat, et convallis sapien. Aliquam eleifend massa at ipsum molestie iaculis."
-				.getBytes("UTF-8");
+		byte[] plainText = FileUtils.readFull("resources/lipsum.txt").getBytes("UTF-8");
 		AESCipher cipher = new AESCipher(k, AESCipher.CIPHER_MODE_ENCRYPT, AESCipher.BLOCK_MODE_ECB, AESCipher.PADDING_NONE);
 		cipher.initData(plainText);
 		cipher.run();
-		System.out.println(HexUtils.toHexStr(cipher.getResult()));	
+		System.out.println(HexUtils.toHexStr(cipher.getResult()));
+		
+		AESCipher cipher2 = new AESCipher(k, AESCipher.CIPHER_MODE_DECRYPT, AESCipher.BLOCK_MODE_ECB, AESCipher.PADDING_NONE);
+		cipher2.initData(cipher.getResult());
+		cipher2.run();
+		System.out.println(HexUtils.toNormalStr(cipher2.getResult()));
 	}
 	
 	public static void challenge8()
@@ -202,7 +206,7 @@ public class SetRunner {
 				for(int j=0; j<data.length; j++) {
 					if(i == j) continue;
 					if(Arrays.equals(data[i], data[j])) {
-						System.out.println("Line " + line + " Could be CBC");
+						System.out.println("Line " + line + " Could be ECB");
 						breakout = true;
 						break;
 					}		

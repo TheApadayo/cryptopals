@@ -11,6 +11,9 @@ public class AESKey {
 	protected int keySize;
 	protected int expandedKeySize;
 
+	/*
+	 * Make an AES key with the following bytes and prepare it for use
+	 */
 	public AESKey(byte[] data) {
 		if (data.length != 16 && data.length != 24 && data.length != 32)
 			throw new EncryptionException("Invalid Key Size");
@@ -19,7 +22,10 @@ public class AESKey {
 		expandKey();
 	}
 
-	public byte[] getRoundKey(int r)
+	/*
+	 * Get the Round AES key for use in the crypto
+	 */
+	protected byte[] getRoundKey(int r)
 	{
 		byte[] ret = new byte[16];
 		for(int i=0; i<16; i++)
@@ -27,6 +33,9 @@ public class AESKey {
 		return ret;
 	}
 	
+	/*
+	 * Rotate 4 bytes by one spot
+	 */
 	private byte[] rotate(byte[] d)
 	{
 		byte c = d[0];
@@ -36,17 +45,23 @@ public class AESKey {
 	    return d;
 	}
 	
+	/*
+	 * Core Expansion function for the key schedule
+	 */
 	private void expandCore(byte[] word, int iter)
 	{
 		if(word.length != 4) throw new EncryptionException("Key expansion error: word isnt 4 bytes!");
 		word = rotate(word);
 		for(int i=0; i<4; i++)
 		{
-			word[i] = (byte)RSALookup.forwardBox(word[i]);
+			word[i] = (byte)AESLookup.forwardBox(word[i]);
 		}
-		word[0] = (byte)(word[0] ^ RSALookup.rcon(iter));
+		word[0] = (byte)(word[0] ^ AESLookup.rcon(iter));
 	}
 	
+	/*
+	 * Expands the given key to a round key for use.
+	 */
 	private void expandKey()
 	{
 		int currentSize = keySize;
@@ -75,7 +90,7 @@ public class AESKey {
 			if(keySize == 32 && (currentSize % keySize == 16))
 			{
 				for(int i=0; i<4; i++)
-					tmp[i] = RSALookup.forwardBox(tmp[i]);
+					tmp[i] = AESLookup.forwardBox(tmp[i]);
 			}
 			
 			for(int i=0;i<4; i++)
@@ -86,7 +101,10 @@ public class AESKey {
 		}
 	}
 	
-	public int numRounds()
+	/*
+	 * Get the number of rounds for the keysize
+	 */
+	protected int numRounds()
 	{
 		switch(keySize)
 		{

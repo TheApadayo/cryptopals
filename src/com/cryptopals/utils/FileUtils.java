@@ -3,7 +3,6 @@ package com.cryptopals.utils;
 import java.io.*;
 import java.util.*;
 
-import com.cryptopals.set1.Base64Converter;
 
 
 
@@ -38,6 +37,21 @@ public class FileUtils {
 		}
 		String[] ret = new String[lines.size()];
 		lines.toArray(ret);
+		return ret;
+	}
+	
+	public static String readFull(String file) {
+		String ret = "";
+		String line;
+		try {	
+			BufferedReader input = new BufferedReader(new FileReader(new File(
+					file)));
+			while ((line = input.readLine()) != null) {
+				ret += line;
+			}
+			input.close();
+		} catch (IOException e) {
+		}
 		return ret;
 	}
 

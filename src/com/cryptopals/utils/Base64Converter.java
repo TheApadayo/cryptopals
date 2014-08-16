@@ -1,4 +1,4 @@
-package com.cryptopals.set1;
+package com.cryptopals.utils;
 
 public class Base64Converter {
 
