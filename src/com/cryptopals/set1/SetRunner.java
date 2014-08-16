@@ -3,6 +3,7 @@ package com.cryptopals.set1;
 import java.io.*;
 import java.util.*;
 
+import com.cryptopals.aes.*;
 import com.cryptopals.utils.*;
 
 public class SetRunner {
@@ -34,7 +35,7 @@ public class SetRunner {
 		{
 			byte[] decoded = XorCipher.single(c3Ciphertext, (byte)i);
 			double score = HexUtils.stringMetric(decoded);
-			if(score > 0.95) // at least 95% score 
+			if(score > 0.90) // at least 95% score 
 				System.out.println(HexUtils.toNormalStr(decoded) + " - Score: " + score + " Key: " + (char)i);
 		}
 	}
@@ -77,15 +78,7 @@ public class SetRunner {
 		System.out.println("Testing Hamming Distance: " + HexUtils.HammingDistance(
 				"this is a test".getBytes("UTF-8"), "wokka wokka!!!".getBytes("UTF-8")));
 		
-		String filetext = "";
-		String line;
-		BufferedReader input = new BufferedReader(new FileReader(new File("resources/set1_challenge6.txt")));
-		while((line = input.readLine()) != null)
-		{
-			filetext += line;
-		}
-		input.close();
-		byte[] ciphertext = Base64Converter.Base64toBytes(filetext);
+		byte[] ciphertext = FileUtils.readBase64("resources/set1_challenge6.txt");
 		//byte[] plaintext = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean sed nisl in lacus feugiat commodo at vel purus. Nulla ornare dui lectus. In hac habitasse platea dictumst. Vestibulum tempus ante eu tincidunt dapibus. Maecenas magna eros, congue ac metus et, porttitor ultricies leo. Suspendisse mi massa, egestas et dui in, tristique semper felis. Cras in mi eros.".getBytes("ASCII");
 		//byte[] testkey = "HelloWorldPassword".getBytes("ASCII");
 		//byte[] ciphertext = XorCipher.repeating(plaintext, testkey);
@@ -172,16 +165,54 @@ public class SetRunner {
 				//System.out.println();
 			}
 			System.out.println("Guessed Key: " + HexUtils.toNormalStr(key));
-			System.out.println("decrypted data is in 'resources/set1_challenge6_decoded.txt'");
-			FileOutputStream output = new FileOutputStream(new File("resources/set1_challenge6_decoded.txt"));
-			output.write(XorCipher.repeating(ciphertext, key));
-			output.close();
+			System.out.println(HexUtils.toNormalStr(XorCipher.repeating(ciphertext, key)));
 		}
-
+	}
+	
+	public static void challenge7() throws Exception
+	{
+		byte[] keyBytes = "YELLOW SUBMARINE".getBytes("UTF-8");
+		AESKey k = new AESKey(keyBytes);
+		// byte[] cipherText = FileUtils.readBase64("resources/set1_challenge7_test.txt");
+		byte[] plainText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec elit sapien, laoreet non sem eget, laoreet pellentesque lectus. Aliquam tincidunt purus nec nunc mollis, et lacinia leo lobortis. Nunc porta tincidunt libero, aliquet tempor tellus vestibulum ac. In euismod quis leo in feugiat. Vivamus rutrum, nisi eget dapibus molestie, odio magna consectetur dui, vel condimentum erat nulla a felis. Ut eu facilisis neque. Nunc a hendrerit metus. Morbi facilisis nibh ante. Vestibulum sem magna, semper ut est in, eleifend egestas lacus. Mauris sit amet arcu sollicitudin, malesuada augue nec, sagittis augue. Donec consectetur hendrerit purus a mattis. Ut euismod sapien sed fringilla porttitor. Nullam rutrum fringilla commodo. Aliquam eu luctus erat, et convallis sapien. Aliquam eleifend massa at ipsum molestie iaculis."
+				.getBytes("UTF-8");
+		AESCipher cipher = new AESCipher(k, AESCipher.CIPHER_MODE_ENCRYPT, AESCipher.BLOCK_MODE_ECB, AESCipher.PADDING_NONE);
+		cipher.initData(plainText);
+		cipher.run();
+		System.out.println(HexUtils.toHexStr(cipher.getResult()));	
+	}
+	
+	public static void challenge8()
+	{
+		String[] cipherTexts = FileUtils.readLines("resources/set1_challenge8.txt");
+		int line = 1;
+		for(String cText : cipherTexts)
+		{
+			byte[] cipher = HexUtils.toByteArray(cText);
+			byte[][] data = new byte[cipher.length / 16][16];
+			int pos = 0;
+			for(int j=0; j<cipher.length/16; j++)
+			{
+				for(int l=0; l<16; l++)
+					data[j][l] = cipher[pos++];
+			}
+			boolean breakout = false;
+			for(int i=0; i<data.length; i++) {
+				if(breakout) break;
+				for(int j=0; j<data.length; j++) {
+					if(i == j) continue;
+					if(Arrays.equals(data[i], data[j])) {
+						System.out.println("Line " + line + " Could be CBC");
+						breakout = true;
+						break;
+					}		
+				}
+			}
+			line++;
+		}
 	}
 
 	public static void main(String[] args) throws Exception { // yay just throw exceptions at hotspot!
-		
 		/*
 		challenge1();
 		System.out.println("----------------------------------------");
@@ -193,9 +224,12 @@ public class SetRunner {
 		System.out.println("----------------------------------------");
 		challenge5();		
 		System.out.println("----------------------------------------");
+		challenge6();
+		System.out.println("----------------------------------------");
 		*/
-		challenge6();		
-		
+		challenge7();
+		//System.out.println("----------------------------------------");
+		//challenge8();
 	}
 
 }

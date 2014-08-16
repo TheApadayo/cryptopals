@@ -1,4 +1,2 @@
-/resources/set1_challenge6_decoded.txt
-/bin/com/cryptopals/set1/*.class
-/bin/com/cryptopals/utils/*.class
+*.class
 /.settings/org.eclipse.jdt.core.prefs
