@@ -17,9 +17,9 @@ Set2 - Incomplete
 	10. Implement CBC Mode - Complete
 	11. An ECB/CBC detection Oracle - Complete
 	12. Byte at a time ECB Decryption (simple) - Complete
-	13. ECB cut and paste
+	13. ECB cut and paste - Complete
 	14. Byte at a time ECB decryption (harder)
-	15. PKCS#7 padding validation
+	15. PKCS#7 padding validation - Complete
 	16. CBC bitflipping attacks
 Set3 - Unattempted
 Set4 - Unattempted
