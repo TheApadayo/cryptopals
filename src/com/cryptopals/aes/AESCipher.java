@@ -43,6 +43,7 @@ public class AESCipher {
 	 */
 	public void run()
 	{
+		if(blockMode == BLOCK_MODE_CBC && iv == null) throw new EncryptionException("Cannot run cipher in CBC mode without IV!");
 		switch(cipherMode) {
 		case CIPHER_MODE_ENCRYPT: encrypt(); break;
 		case CIPHER_MODE_DECRYPT: decrypt(); break;
@@ -59,7 +60,6 @@ public class AESCipher {
 			//System.out.print("Plain: " + HexUtils.toNormalStr(b.getData()));
 			if(blockMode == BLOCK_MODE_CBC)
 			{
-				if(iv == null) throw new EncryptionException("Cannot run cipher in CBC mode without IV!");
 				if(j == 0) // us IV
 					b.setData(XorCipher.fixed(iv.getData(), b.getData()));
 				else
@@ -96,14 +96,6 @@ public class AESCipher {
 		for(int j=blocks.length-1; j>=0; j--){
 			AESBlock b = blocks[j];
 			//System.out.print("Crypto: " + HexUtils.toHexStr(b.getData()));
-			if(blockMode == BLOCK_MODE_CBC)
-			{
-				if(iv == null) throw new EncryptionException("Cannot run cipher in CBC mode without IV!");
-				if(j == 0) // us IV
-					b.setData(XorCipher.fixed(iv.getData(), b.getData()));
-				else if(j != blocks.length-1)
-					b.setData(XorCipher.fixed(blocks[j+1].getData(), b.getData()));
-			}
 			int rndKey = key.numRounds();
 			curRound = "state";
 			addRoundKey(b, rndKey--);
@@ -121,6 +113,16 @@ public class AESCipher {
 			invShiftRow(b);
 			invSubBytes(b);
 			addRoundKey(b, rndKey--);
+			
+			if(blockMode == BLOCK_MODE_CBC)
+			{
+				if(iv == null) throw new EncryptionException("Cannot run cipher in CBC mode without IV!");
+				if(j == 0) // us IV
+					b.setData(XorCipher.fixed(iv.getData(), b.getData()));
+				else
+					b.setData(XorCipher.fixed(blocks[j-1].getData(), b.getData()));
+			}
+			
 			//System.out.println(curRound);
 			//System.out.println(" Plain: " + HexUtils.toNormalStr(b.getData()));
 		}

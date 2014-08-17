@@ -1,5 +1,6 @@
 package com.cryptopals.aes;
 
+import java.security.SecureRandom;
 import java.util.*;
 
 import com.cryptopals.utils.HexUtils;
@@ -113,6 +114,15 @@ public class AESKey {
 		case 32: return 14;
 		}
 		return -1;
+	}
+	
+	public static AESKey getRandomKey()
+	{
+		SecureRandom r = new SecureRandom();
+		byte[] keyBytes = new byte[16];
+		r.nextBytes(keyBytes);
+		AESKey k = new AESKey(keyBytes);
+		return k;
 	}
 
 }

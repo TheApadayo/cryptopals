@@ -178,7 +178,7 @@ public class Set1 {
 		AESCipher cipher = new AESCipher(k, AESCipher.CIPHER_MODE_ENCRYPT, AESCipher.BLOCK_MODE_ECB, AESCipher.PADDING_NONE);
 		cipher.initData(plainText);
 		cipher.run();
-		System.out.println(HexUtils.toHexStr(cipher.getResult()));
+		System.out.println(HexUtils.toPrettyHexStr(cipher.getResult()));
 		
 		AESCipher cipher2 = new AESCipher(k, AESCipher.CIPHER_MODE_DECRYPT, AESCipher.BLOCK_MODE_ECB, AESCipher.PADDING_NONE);
 		cipher2.initData(cipher.getResult());
@@ -217,23 +217,24 @@ public class Set1 {
 	}
 
 	public static void main(String[] args) throws Exception { // yay just throw exceptions at hotspot!
-		/*
+		
+		System.out.println("Cryptopals Set 1 by TheApdayo");
+		System.out.println("Challenge 1----------------------------------------");
 		challenge1();
-		System.out.println("----------------------------------------");
+		System.out.println("Challenge 2----------------------------------------");
 		challenge2();		
-		System.out.println("----------------------------------------");
+		System.out.println("Challenge 3----------------------------------------");
 		challenge3();		
-		System.out.println("----------------------------------------");
+		System.out.println("Challenge 4----------------------------------------");
 		challenge4();
-		System.out.println("----------------------------------------");
+		System.out.println("Challenge 5----------------------------------------");
 		challenge5();		
-		System.out.println("----------------------------------------");
+		System.out.println("Challenge 6----------------------------------------");
 		challenge6();
-		System.out.println("----------------------------------------");
-		*/
+		System.out.println("Challenge 7----------------------------------------");
 		challenge7();
-		//System.out.println("----------------------------------------");
-		//challenge8();
+		System.out.println("Challenge 8----------------------------------------");
+		challenge8();
 	}
 
 }

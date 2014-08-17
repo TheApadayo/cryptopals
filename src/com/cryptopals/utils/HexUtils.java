@@ -39,6 +39,19 @@ public class HexUtils {
 		return s;
 	}
 	
+	public static String toPrettyHexStr(byte[] arr) {
+		String s = "";
+		int i = 0;
+		for(byte b : arr)
+		{
+			if(i % 32 == 0 && i != 0) s += "\n";
+			s += hexKey.charAt((b & 0xF0) >> 4);
+			s += hexKey.charAt(b & 0x0F);
+			i++;
+		}
+		return s;
+	}
+	
 	public static String toNormalStr(byte[] arr)
 	{
 		try {

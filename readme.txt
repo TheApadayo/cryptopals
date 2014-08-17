@@ -15,7 +15,7 @@ Set1 - Complete (java com.cryptopals.sets.Set1)
 Set2 - Incomplete
 	9. Implement PKCS#7 Padding - Complete
 	10. Implement CBC Mode - Complete
-	11. An ECB/CBC detection Oracle
+	11. An ECB/CBC detection Oracle - Complete
 	12. Byte at a time ECB Decryption (simple)
 	13. ECB cut and paste
 	14. Byte at a time ECB decryption (harder)

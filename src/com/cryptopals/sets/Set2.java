@@ -1,5 +1,9 @@
 package com.cryptopals.sets;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Random;
+
 import com.cryptopals.aes.*;
 import com.cryptopals.utils.*;
 
@@ -29,12 +33,82 @@ public class Set2 {
 		cipher.run();
 		System.out.println("Plaintext: " + HexUtils.toNormalStr(cipher.getResult()));
 	}
+	
+	public static void challenge11() throws Exception
+	{
+		// we control the plaintext so we can force it to something that we KNOW will cause ECB to
+		// repeat blocks even with the padding at the front and back.
+		byte[] inputText = { 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+				 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+				 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+				 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+				 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20 };
+		// this will give us at least 2 blocks that will be identical if its ECB
+		
+		byte[] ciphertext = AESUtils.encryptRandomly(inputText);
+		System.out.println(HexUtils.toPrettyHexStr(ciphertext));
+		
+		boolean ecb = AESUtils.detectECB(ciphertext);
+		System.out.println("We think that it was done using " + (ecb ? "ECB" : "CBC"));
+	}
+	
+	// we put the secret inside our 'black box' AESUtils
+	public static void challenge12()
+	{
+		// detect block size
+		byte[] plaintext = { 0x20, 0x20 };
+		byte[] ciphertext = AESUtils.encryptSecretly(plaintext);
+		byte[] block1 = ArrayUtils.copy(ciphertext, 0, ciphertext.length / 2);
+		byte[] block2 = ArrayUtils.copy(ciphertext, ciphertext.length / 2, ciphertext.length - 1);
+		int blocksize = 1;
+		while(!Arrays.equals(block1,  block2))
+		{
+			blocksize++;
+			plaintext = ArrayUtils.fill((byte)0x20, blocksize * 2);
+			ciphertext = AESUtils.encryptSecretly(plaintext);
+			block1 = ArrayUtils.copy(ciphertext, 0, blocksize);
+			block2 = ArrayUtils.copy(ciphertext, blocksize, 2 * blocksize);
+			if(blocksize > 128) { blocksize = -1; break; }
+		}
+		
+		System.out.println("Detected blocksize is " + blocksize);
+		
+		// same as above. detect ecb
+		byte[] inputText = { 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+				 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+				 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+				 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+				 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20 };
+		
+		boolean ecb = AESUtils.detectECB(AESUtils.encryptSecretly(inputText));
+		System.out.println("We think that it was done using " + (ecb ? "ECB" : "CBC"));
+		
+		ArrayList<Byte> decoded = new ArrayList<Byte>();
+		for(int i=0; i<32; i++)
+		{
+			byte[] forcetext = ArrayUtils.fill((byte)0x20, (blocksize - 1) + i);
+			for(int j=0; j<i; j++)
+			{
+				forcetext[(blocksize - 1) + j] = decoded.get(j);
+			}
+			byte[] forcedcrypto = AESUtils.encryptSecretly(forcetext);
+			int blockNum = i / 16;
+			byte[] block = ArrayUtils.copy(forcedcrypto, blockNum * 16, (blockNum + 1) * 16); 
+		}
+	}
 
 	public static void main(String[] args) throws Exception { // yay just throw exceptions at hotspot!
-		
+		System.out.println("Cryptopals Set 2 by TheApdayo");
+		/*
+		System.out.println("Challenge 9----------------------------------------");
 		challenge9();
-		System.out.println("----------------------------------------");
+		System.out.println("Challenge 10----------------------------------------");
 		challenge10();
+		System.out.println("Challenge 11----------------------------------------");
+		challenge11();
+		*/
+		System.out.println("Challenge 12----------------------------------------");
+		challenge12();
 	}
 
 }
