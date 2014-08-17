@@ -1,6 +1,6 @@
 package com.cryptopals.utils;
 
-import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 
 public class HexUtils {
 	
@@ -39,6 +39,17 @@ public class HexUtils {
 		return s;
 	}
 	
+	public static String toHexStr(ArrayList<Byte> arr)
+	{
+		String s = "";
+		for(Byte b : arr)
+		{
+			s += hexKey.charAt((b & 0xF0) >> 4);
+			s += hexKey.charAt(b & 0x0F);
+		}
+		return s;
+	}
+	
 	public static String toPrettyHexStr(byte[] arr) {
 		String s = "";
 		int i = 0;
@@ -59,6 +70,16 @@ public class HexUtils {
 		} catch (Exception e) {
 			return "";
 		}
+	}
+	
+	public static String toNormalStr(ArrayList<Byte> arr)
+	{
+		String s = "";
+		for(Byte b : arr)
+		{
+			s += (char)b.byteValue();
+		}
+		return s;
 	}
 	
 	public static double stringMetric(byte[] arr)

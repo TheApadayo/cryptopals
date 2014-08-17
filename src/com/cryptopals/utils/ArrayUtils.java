@@ -21,4 +21,12 @@ public class ArrayUtils {
 		}
 		return ret;
 	}
+	
+	public static void copy(byte[] dest, byte[] input, int destOff, int len)
+	{
+		for(int i=0; i<len; i++)
+		{
+			dest[destOff + i] = input[i];
+		}
+	}
 }

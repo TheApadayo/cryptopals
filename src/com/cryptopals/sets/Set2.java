@@ -1,5 +1,6 @@
 package com.cryptopals.sets;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
@@ -53,7 +54,7 @@ public class Set2 {
 	}
 	
 	// we put the secret inside our 'black box' AESUtils
-	public static void challenge12()
+	public static void challenge12() throws Exception
 	{
 		// detect block size
 		byte[] plaintext = { 0x20, 0x20 };
@@ -83,18 +84,33 @@ public class Set2 {
 		boolean ecb = AESUtils.detectECB(AESUtils.encryptSecretly(inputText));
 		System.out.println("We think that it was done using " + (ecb ? "ECB" : "CBC"));
 		
-		ArrayList<Byte> decoded = new ArrayList<Byte>();
-		for(int i=0; i<32; i++)
+		// just for the record: I understand how this works for the first block,
+		// but I have no idea how the heck it cascades over into the next block.
+		byte[] decoded = new byte[138 + 2]; // secret is 138 bytes long
+		for(int i=0; i<138 + 2; i++) // oh also for some reason it grabs the first byte as 0xFE (the padding)
 		{
-			byte[] forcetext = ArrayUtils.fill((byte)0x20, (blocksize - 1) + i);
-			for(int j=0; j<i; j++)
-			{
-				forcetext[(blocksize - 1) + j] = decoded.get(j);
-			}
-			byte[] forcedcrypto = AESUtils.encryptSecretly(forcetext);
 			int blockNum = i / 16;
-			byte[] block = ArrayUtils.copy(forcedcrypto, blockNum * 16, (blockNum + 1) * 16); 
+			int blockStart = blockNum * blocksize;
+			int blockEnd = (blockNum + 1) * blocksize;
+			
+			byte[] forcetext = ArrayUtils.fill((byte)0xFE, (blockEnd - i));
+			byte[] forcedcrypto = AESUtils.encryptSecretly(forcetext);
+			byte[] block = ArrayUtils.copy(forcedcrypto, blockNum * 16, (blockNum + 1) * 16);
+			for(int j=0; j<256;j++)
+			{
+				byte[] testtex = ArrayUtils.fill((byte)0xFE, blocksize * (blockNum+1));
+				ArrayUtils.copy(testtex, decoded, blockEnd - i - 1, i);
+				testtex[testtex.length-1] = (byte)j;
+				testtex = ArrayUtils.copy(AESUtils.encryptSecretly(testtex), blockStart, blockEnd);
+				if(Arrays.equals(block, testtex))
+				{
+					decoded[i] = (byte)j;
+					break;
+				}
+			}
 		}
+		byte[] secretDecoded = ArrayUtils.copy(decoded, 1, 139);
+		System.out.println("Secret is: " + HexUtils.toNormalStr(secretDecoded));
 	}
 
 	public static void main(String[] args) throws Exception { // yay just throw exceptions at hotspot!
