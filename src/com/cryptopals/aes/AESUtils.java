@@ -40,5 +40,13 @@ public class AESUtils {
 		}
 		return ret;
 	}
+	
+	public static void setBlock(byte[] cipher, byte[] data, int block)
+	{
+		for(int i=0; i<data.length; i++)
+		{
+			cipher[i + (block * data.length)] = data[i];
+		}
+	}
 
 }

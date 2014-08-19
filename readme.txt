@@ -20,7 +20,7 @@ Set2 - Incomplete
 	13. ECB cut and paste - Complete
 	14. Byte at a time ECB decryption (harder) - Complete
 	15. PKCS#7 padding validation - Complete
-	16. CBC bitflipping attacks
+	16. CBC bitflipping attacks - Complete
 Set3 - Unattempted
 Set4 - Unattempted
 Set5 - Unattempted

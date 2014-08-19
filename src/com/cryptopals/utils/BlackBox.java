@@ -77,4 +77,32 @@ public class BlackBox
 		cipher.run();
 		return cipher.getResult();
 	}
+
+	private static AESKey challenge16_hiddenKey;
+	private static byte[] challenge16_IV;
+
+	public static byte[] challenge16_encrypt(String input) throws Exception
+	{
+		if (challenge16_hiddenKey == null)
+			challenge16_hiddenKey = AESKey.getRandomKey();
+		if (challenge16_IV == null)
+			challenge16_IV = AESCipher.generateRandomIV();
+
+		input = input.replace('=', '.').replace(';', '.');
+		AESCipher cipher = new AESCipher(challenge16_hiddenKey, AESCipher.CIPHER_MODE_ENCRYPT, AESCipher.BLOCK_MODE_CBC, AESCipher.PADDING_PKCS7);
+		String plain = "comment1=cooking%20MCs;userdata=" + input + ";comment2=%20like%20a%20pound%20of%20bacon";
+		cipher.initData(plain.getBytes("UTF-8"));
+		cipher.setIV(challenge16_IV);
+		cipher.run();
+		return cipher.getResult();
+	}
+
+	public static boolean challenge16_verify(byte[] cipherText)
+	{
+		AESCipher cipher = new AESCipher(challenge16_hiddenKey, AESCipher.CIPHER_MODE_DECRYPT, AESCipher.BLOCK_MODE_CBC, AESCipher.PADDING_PKCS7);
+		cipher.initData(cipherText);
+		cipher.setIV(challenge16_IV);
+		cipher.run();
+		return HexUtils.toNormalStr(cipher.getResult()).contains(";admin=true;");
+	}
 }

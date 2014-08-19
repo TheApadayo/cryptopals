@@ -229,9 +229,17 @@ public class Set2
 		}
 	}
 	
-	public static void challenge16()
+	public static void challenge16() throws Exception
 	{
+		byte[] attackerBytes = BlackBox.challenge16_encrypt("PWNED:admin<true");
 		
+		byte[] block = AESUtils.getBlock(attackerBytes, 16, 1);
+		block[5] = (byte)(block[5] ^ 0x1); // fix semi colon
+		block[11] = (byte)(block[11] ^ 0x1); // fix equals sign
+		
+		AESUtils.setBlock(attackerBytes, block, 1);
+		
+		System.out.println("admin is " + (BlackBox.challenge16_verify(attackerBytes) ? "true" : "false"));
 	}
 
 	public static void main(String[] args) throws Exception
