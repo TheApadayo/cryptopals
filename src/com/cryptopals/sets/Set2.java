@@ -92,7 +92,6 @@ public class Set2
 			int blockEnd = (blockNum + 1) * blocksize;
 
 			byte[] forcetext = ArrayUtils.fill((byte)0xFF, (blockEnd - i));
-			System.out.println("forcetext: " + HexUtils.toHexStr(forcetext));
 			byte[] forcedcrypto = BlackBox.challenge12(forcetext);
 			byte[] block = AESUtils.getBlock(forcedcrypto, 16, blockNum);
 			for (int j = 0; j < 256; j++)
@@ -100,7 +99,6 @@ public class Set2
 				byte[] testtex = ArrayUtils.fill((byte)0xFF, blocksize * (blockNum + 1));
 				ArrayUtils.copy(testtex, decoded, blockEnd - i - 1, i);
 				testtex[testtex.length - 1] = (byte)j;
-				System.out.println("testtex  : " + HexUtils.toHexStr(testtex));
 				testtex = AESUtils.getBlock(BlackBox.challenge12(testtex), 16, blockNum);
 				if (Arrays.equals(block, testtex))
 				{
@@ -175,8 +173,8 @@ public class Set2
 		}
 
 		int start = len - 33;
-		System.out.println(start);
-		System.out.println(useableBlock);
+		System.out.println(start + " bytes before we control data");
+		System.out.println("this occurs in block " + useableBlock);
 
 		// just for the record: I understand how this works for the first block,
 		// but I have no idea how the heck it cascades over into the next block.
@@ -245,7 +243,6 @@ public class Set2
 	public static void main(String[] args) throws Exception
 	{ // yay just throw exceptions at hotspot!
 		System.out.println("Cryptopals Set 2 by TheApdayo");
-		/*
 		System.out.println("Challenge 9----------------------------------------"); 
 		challenge9();
 		System.out.println("Challenge 10----------------------------------------");
@@ -260,7 +257,6 @@ public class Set2
 		challenge14();
 		System.out.println("Challenge 15----------------------------------------");
 		challenge15();
-		*/
 		System.out.println("Challenge 16----------------------------------------");
 		challenge16();
 
