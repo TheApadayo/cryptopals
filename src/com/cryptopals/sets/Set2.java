@@ -35,28 +35,6 @@ public class Set2
 		System.out.println("Plaintext: " + HexUtils.toNormalStr(cipher.getResult()));
 	}
 
-	public static byte[] challenge11_encryptRandomly(byte[] inputText)
-	{
-		Random r = new Random();
-		AESKey k = AESKey.getRandomKey();
-		int blockMode = (r.nextBoolean()) ? AESCipher.BLOCK_MODE_ECB : AESCipher.BLOCK_MODE_CBC;
-		AESCipher cipher = new AESCipher(k, AESCipher.CIPHER_MODE_ENCRYPT, blockMode, AESCipher.PADDING_PKCS7);
-		if (blockMode == AESCipher.BLOCK_MODE_CBC)
-			cipher.setIV(AESCipher.generateRandomIV());
-
-		int before = r.nextInt(5) + 5;
-		int after = r.nextInt(5) + 5;
-		byte[] plaintext = new byte[inputText.length + before + after];
-		r.nextBytes(plaintext);
-		for (int i = 0; i < inputText.length; i++)
-		{
-			plaintext[i + before] = inputText[i];
-		}
-		cipher.initData(plaintext);
-		cipher.run();
-		return cipher.getResult();
-	}
-
 	public static void challenge11() throws Exception
 	{
 		// we control the plaintext so we can force it to something that we KNOW
@@ -65,29 +43,11 @@ public class Set2
 		byte[] inputText = { 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20 };
 		// this will give us at least 2 blocks that will be identical if its ECB
 
-		byte[] ciphertext = challenge11_encryptRandomly(inputText);
+		byte[] ciphertext = BlackBox.challenge11(inputText);
 		System.out.println(HexUtils.toPrettyHexStr(ciphertext));
 
 		boolean ecb = AESUtils.detectECB(ciphertext);
 		System.out.println("We think that it was done using " + (ecb ? "ECB" : "CBC"));
-	}
-
-	private static AESKey challenge12_hiddenKey;
-
-	public static byte[] challenge12_encryptSecretly(byte[] inputText)
-	{
-		if (challenge12_hiddenKey == null)
-			challenge12_hiddenKey = AESKey.getRandomKey();
-		AESCipher cipher = new AESCipher(challenge12_hiddenKey, AESCipher.CIPHER_MODE_ENCRYPT, AESCipher.BLOCK_MODE_ECB, AESCipher.PADDING_PKCS7);
-		byte[] secret = Base64Converter.Base64toBytes("Um9sbGluJyBpbiBteSA1LjAKV2l0aCBteSByYWctdG9wIGRvd24gc28gbXkgaGFpciBjYW4gYmxvdwpUaGUgZ2lybGllcyBvbiBzdGFuZGJ5IHdhdmluZyBqdXN0IHRvIHNheSBoaQpEaWQgeW91IHN0b3A/IE5vLCBJIGp1c3QgZHJvdmUgYnkK");
-		byte[] plaintext = new byte[inputText.length + secret.length];
-		for (int i = 0; i < inputText.length; i++)
-			plaintext[i] = inputText[i];
-		for (int i = 0; i < secret.length; i++)
-			plaintext[i + inputText.length] = secret[i];
-		cipher.initData(plaintext);
-		cipher.run();
-		return cipher.getResult();
 	}
 
 	// we put the secret inside our 'black box' AESUtils
@@ -95,7 +55,7 @@ public class Set2
 	{
 		// detect block size
 		byte[] plaintext = { 0x20, 0x20 };
-		byte[] ciphertext = challenge12_encryptSecretly(plaintext);
+		byte[] ciphertext = BlackBox.challenge12(plaintext);
 		byte[] block1 = ArrayUtils.copy(ciphertext, 0, ciphertext.length / 2);
 		byte[] block2 = ArrayUtils.copy(ciphertext, ciphertext.length / 2, ciphertext.length - 1);
 		int blocksize = 1;
@@ -103,7 +63,7 @@ public class Set2
 		{
 			blocksize++;
 			plaintext = ArrayUtils.fill((byte)0x20, blocksize * 2);
-			ciphertext = challenge12_encryptSecretly(plaintext);
+			ciphertext = BlackBox.challenge12(plaintext);
 			block1 = ArrayUtils.copy(ciphertext, 0, blocksize);
 			block2 = ArrayUtils.copy(ciphertext, blocksize, 2 * blocksize);
 			if (blocksize > 128)
@@ -118,7 +78,7 @@ public class Set2
 		// same as above. detect ecb
 		byte[] inputText = { 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20 };
 
-		boolean ecb = AESUtils.detectECB(challenge12_encryptSecretly(inputText));
+		boolean ecb = AESUtils.detectECB(BlackBox.challenge12(inputText));
 		System.out.println("We think that it was done using " + (ecb ? "ECB" : "CBC"));
 
 		// just for the record: I understand how this works for the first block,
@@ -129,18 +89,19 @@ public class Set2
 											// padding)
 		{
 			int blockNum = i / blocksize;
-			int blockStart = blockNum * blocksize;
 			int blockEnd = (blockNum + 1) * blocksize;
 
 			byte[] forcetext = ArrayUtils.fill((byte)0xFF, (blockEnd - i));
-			byte[] forcedcrypto = challenge12_encryptSecretly(forcetext);
-			byte[] block = ArrayUtils.copy(forcedcrypto, blockNum * blocksize, (blockNum + 1) * blocksize);
+			System.out.println("forcetext: " + HexUtils.toHexStr(forcetext));
+			byte[] forcedcrypto = BlackBox.challenge12(forcetext);
+			byte[] block = AESUtils.getBlock(forcedcrypto, 16, blockNum);
 			for (int j = 0; j < 256; j++)
 			{
 				byte[] testtex = ArrayUtils.fill((byte)0xFF, blocksize * (blockNum + 1));
 				ArrayUtils.copy(testtex, decoded, blockEnd - i - 1, i);
 				testtex[testtex.length - 1] = (byte)j;
-				testtex = ArrayUtils.copy(challenge12_encryptSecretly(testtex), blockStart, blockEnd);
+				System.out.println("testtex  : " + HexUtils.toHexStr(testtex));
+				testtex = AESUtils.getBlock(BlackBox.challenge12(testtex), 16, blockNum);
 				if (Arrays.equals(block, testtex))
 				{
 					decoded[i] = (byte)j;
@@ -188,31 +149,35 @@ public class Set2
 		System.out.println("User's role is: " + profileObj.getValue("role"));
 	}
 
-	private static AESKey challenge14_hiddenKey;
-
-	public static byte[] challenge14_encryptSecretly(byte[] inputText)
-	{
-		if (challenge12_hiddenKey == null)
-			challenge12_hiddenKey = AESKey.getRandomKey();
-		AESCipher cipher = new AESCipher(challenge12_hiddenKey, AESCipher.CIPHER_MODE_ENCRYPT, AESCipher.BLOCK_MODE_ECB, AESCipher.PADDING_PKCS7);
-		byte[] secret = Base64Converter.Base64toBytes("Um9sbGluJyBpbiBteSA1LjAKV2l0aCBteSByYWctdG9wIGRvd24gc28gbXkgaGFpciBjYW4gYmxvdwpUaGUgZ2lybGllcyBvbiBzdGFuZGJ5IHdhdmluZyBqdXN0IHRvIHNheSBoaQpEaWQgeW91IHN0b3A/IE5vLCBJIGp1c3QgZHJvdmUgYnkK");
-		SecureRandom r = new SecureRandom();
-		byte[] nonce = new byte[r.nextInt(32)];
-		r.nextBytes(nonce);
-		byte[] plaintext = new byte[nonce.length + inputText.length + secret.length];
-		for (int i = 0; i < nonce.length; i++)
-			plaintext[i] = nonce[i];
-		for (int i = 0; i < inputText.length; i++)
-			plaintext[i + nonce.length] = inputText[i];
-		for (int i = 0; i < secret.length; i++)
-			plaintext[i + nonce.length + inputText.length] = secret[i];
-		cipher.initData(plaintext);
-		cipher.run();
-		return cipher.getResult();
-	}
-
 	public static void challenge14()
 	{
+		// we need to find which block our injected data takes over fully
+		int len = 1;
+		byte[] plaintext = ArrayUtils.fill((byte)0xFF, len);
+		byte[] ciphertext = BlackBox.challenge14(plaintext);
+		int numBlocks = ciphertext.length / 16;
+		int useableBlock = -1;
+		while (useableBlock == -1)
+		{
+			plaintext = ArrayUtils.fill((byte)0xFF, len);
+			ciphertext = BlackBox.challenge14(plaintext);
+			for (int i = 0; i < numBlocks - 1; i++)
+			{
+				byte[] block1 = ArrayUtils.copy(ciphertext, i * 16, (i + 1) * 16);
+				byte[] block2 = ArrayUtils.copy(ciphertext, (i + 1) * 16, (i + 2) * 16);
+				if (Arrays.equals(block1, block2))
+				{
+					useableBlock = i;
+					break;
+				}
+			}
+			len++;
+		}
+
+		int start = len - 33;
+		System.out.println(start);
+		System.out.println(useableBlock);
+
 		// just for the record: I understand how this works for the first block,
 		// but I have no idea how the heck it cascades over into the next block.
 		byte[] decoded = new byte[138 + 2]; // secret is 138 bytes long
@@ -221,18 +186,17 @@ public class Set2
 											// padding)
 		{
 			int blockNum = i / 16;
-			int blockStart = blockNum * 16;
 			int blockEnd = (blockNum + 1) * 16;
 
-			byte[] forcetext = ArrayUtils.fill((byte)0xFF, (blockEnd - i));
-			byte[] forcedcrypto = challenge14_encryptSecretly(forcetext);
-			byte[] block = ArrayUtils.copy(forcedcrypto, blockNum * 16, (blockNum + 1) * 16);
+			byte[] forcetext = ArrayUtils.fill((byte)0xFF, start + (blockEnd - i));
+			byte[] forcedcrypto = BlackBox.challenge14(forcetext);
+			byte[] block = AESUtils.getBlock(forcedcrypto, 16, useableBlock + blockNum);
 			for (int j = 0; j < 256; j++)
 			{
-				byte[] testtex = ArrayUtils.fill((byte)0xFF, 16 * (blockNum + 1));
-				ArrayUtils.copy(testtex, decoded, blockEnd - i - 1, i);
+				byte[] testtex = ArrayUtils.fill((byte)0xFF, start + blockEnd);
+				ArrayUtils.copy(testtex, decoded, start + blockEnd - i - 1, i);
 				testtex[testtex.length - 1] = (byte)j;
-				testtex = ArrayUtils.copy(challenge12_encryptSecretly(testtex), blockStart, blockEnd);
+				testtex = AESUtils.getBlock(BlackBox.challenge14(testtex), 16, useableBlock + blockNum);
 				if (Arrays.equals(block, testtex))
 				{
 					decoded[i] = (byte)j;
@@ -242,6 +206,32 @@ public class Set2
 		}
 		byte[] secretDecoded = ArrayUtils.copy(decoded, 1, 139);
 		System.out.println("Secret is: " + HexUtils.toNormalStr(secretDecoded));
+	}
+
+	public static void challenge15()
+	{
+		AESKey k = AESKey.getRandomKey();
+		byte[] lipsum = FileUtils.readBytes("resources/lipsum.txt");
+		AESCipher en = new AESCipher(k, AESCipher.CIPHER_MODE_ENCRYPT, AESCipher.BLOCK_MODE_ECB, AESCipher.PADDING_PKCS7);
+		AESCipher de = new AESCipher(k, AESCipher.CIPHER_MODE_DECRYPT, AESCipher.BLOCK_MODE_ECB, AESCipher.PADDING_PKCS7);
+		en.initData(lipsum);
+		en.run();
+		de.initData(en.getResult());
+		de.run();
+		try
+		{
+			AESCipher.stripPKCS7(de.getResult());
+			System.out.println("Successfully removed PKCS#7 padding");
+		} catch (EncryptionException e)
+		{
+			System.out.println("Error removed PKCS#7 padding!");
+			e.printStackTrace();
+		}
+	}
+	
+	public static void challenge16()
+	{
+		
 	}
 
 	public static void main(String[] args) throws Exception
@@ -257,9 +247,15 @@ public class Set2
 		System.out.println("Challenge 12----------------------------------------");
 		challenge12();
 		System.out.println("Challenge 13----------------------------------------");
-		challenge13();*/
+		challenge13();
 		System.out.println("Challenge 14----------------------------------------");
 		challenge14();
+		System.out.println("Challenge 15----------------------------------------");
+		challenge15();
+		*/
+		System.out.println("Challenge 16----------------------------------------");
+		challenge16();
+
 	}
 
 }
