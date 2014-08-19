@@ -66,6 +66,7 @@ public class AESCipher
 		for (int j = 0; j < blocks.length; j++)
 		{
 			AESBlock b = blocks[j];
+			if(b == null) continue;
 			// System.out.print("Plain: " + HexUtils.toNormalStr(b.getData()));
 			if (blockMode == BLOCK_MODE_CBC)
 			{
@@ -135,8 +136,7 @@ public class AESCipher
 			}
 
 			// System.out.println(curRound);
-			// System.out.println(" Plain: " +
-			// HexUtils.toNormalStr(b.getData()));
+			// System.out.println(" Plain: " + HexUtils.toNormalStr(b.getData()));
 		}
 	}
 
@@ -145,7 +145,8 @@ public class AESCipher
 	 */
 	public void initData(byte[] data)
 	{
-		blocks = new AESBlock[data.length / 16 + ((data.length % 16 != 0) ? 1 : 0)];
+		int extraBlocks = ((data.length % 16 != 0) ? 1 : 0);
+		blocks = new AESBlock[data.length / 16 + ((paddingMode != PADDING_NONE) ? extraBlocks : 0)];
 		initialLength = data.length;
 		int pos = 0;
 		for (int i = 0; i < data.length / 16; i++)

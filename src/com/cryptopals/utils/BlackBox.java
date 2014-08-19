@@ -105,4 +105,25 @@ public class BlackBox
 		cipher.run();
 		return HexUtils.toNormalStr(cipher.getResult()).contains(";admin=true;");
 	}
+	
+	private static AESKey challenge17_hiddenKey;
+	private static byte[] challenge17_IV;
+	
+	public static byte[] challenge17_encrypt()
+	{
+		if (challenge17_hiddenKey == null)
+			challenge17_hiddenKey = AESKey.getRandomKey();
+		if (challenge17_IV == null)
+			challenge17_IV = AESCipher.generateRandomIV();
+
+		String[] lines = FileUtils.readLines("resources/set3_challenge17.txt");
+		byte[] input = lines[new Random().nextInt(lines.length)].getBytes();
+		AESCipher cipher = new AESCipher(challenge16_hiddenKey, AESCipher.CIPHER_MODE_ENCRYPT, AESCipher.BLOCK_MODE_CBC, AESCipher.PADDING_PKCS7);
+		return null;
+	}
+	
+	public static byte[] challenge17_IV()
+	{
+		return challenge17_IV;
+	}
 }

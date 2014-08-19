@@ -71,7 +71,7 @@ public class Set1
 		// it here
 		// it should be ok
 		byte[] c4Plaintext = ("Burning 'em, if you ain't quick and nimble I go crazy when I hear a cymbal").getBytes("UTF-8");
-		byte[] c4Key = "ICE".getBytes();
+		byte[] c4Key = "ICE".getBytes("UTF-8");
 		System.out.println("Should be: 0b3637272a2b2e63622c2e69692a23693a2a3c6324202d623d63343c2a26226324272765272a282b2f20430a652e2c652a3124333a653e2b2027630c692b20283165286326302e27282f");
 		System.out.println("We got:    " + HexUtils.toHexStr(XorCipher.repeating(c4Plaintext, c4Key)));
 	}
@@ -227,7 +227,7 @@ public class Set1
 
 	public static void main(String[] args) throws Exception
 	{ // yay just throw exceptions at hotspot!
-
+		HexUtils.setCharset();
 		System.out.println("Cryptopals Set 1 by TheApdayo");
 		System.out.println("Challenge 1----------------------------------------");
 		challenge1();

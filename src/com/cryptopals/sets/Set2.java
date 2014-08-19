@@ -1,6 +1,5 @@
 package com.cryptopals.sets;
 
-import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -12,9 +11,9 @@ public class Set2
 
 	public static void challenge9() throws Exception
 	{
-		AESKey k = new AESKey("YELLOW SUBMARINE".getBytes("UTF-8"));
+		AESKey k = new AESKey("YELLOW SUBMARINE".getBytes());
 		AESCipher cipher = new AESCipher(k, AESCipher.CIPHER_MODE_ENCRYPT, AESCipher.BLOCK_MODE_ECB, AESCipher.PADDING_PKCS7);
-		cipher.initData(FileUtils.readFull("resources/lipsum.txt").getBytes("UTF-8"));
+		cipher.initData(FileUtils.readFull("resources/lipsum.txt").getBytes());
 		cipher.run();
 		System.out.println("Ciphertext: " + HexUtils.toHexStr(cipher.getResult()));
 
@@ -26,13 +25,14 @@ public class Set2
 
 	public static void challenge10() throws Exception
 	{
-		AESKey k = new AESKey("YELLOW SUBMARINE".getBytes("UTF-8"));
+		AESKey k = new AESKey("YELLOW SUBMARINE".getBytes());
 		byte[] iv = new byte[16]; // gives us all nulls
 		AESCipher cipher = new AESCipher(k, AESCipher.CIPHER_MODE_DECRYPT, AESCipher.BLOCK_MODE_CBC, AESCipher.PADDING_PKCS7);
 		cipher.initData(FileUtils.readBase64("resources/set2_challenge10.txt"));
 		cipher.setIV(iv);
 		cipher.run();
-		System.out.println("Plaintext: " + HexUtils.toNormalStr(cipher.getResult()));
+		// stripping the pkcs7 isn't required for another couple challenges but its nicer here
+		System.out.println("Plaintext: " + HexUtils.toNormalStr(AESCipher.stripPKCS7(cipher.getResult())));
 	}
 
 	public static void challenge11() throws Exception
@@ -128,7 +128,7 @@ public class Set2
 		AESKey k = AESKey.getRandomKey();
 		AESCipher en = new AESCipher(k, AESCipher.CIPHER_MODE_ENCRYPT, AESCipher.BLOCK_MODE_ECB, AESCipher.PADDING_PKCS7);
 		AESCipher de = new AESCipher(k, AESCipher.CIPHER_MODE_DECRYPT, AESCipher.BLOCK_MODE_ECB, AESCipher.PADDING_PKCS7);
-		en.initData(profile.getBytes("UTF-8"));
+		en.initData(profile.getBytes());
 		en.run();
 		byte[] attackerBytes = en.getResult();
 
@@ -222,7 +222,7 @@ public class Set2
 			System.out.println("Successfully removed PKCS#7 padding");
 		} catch (EncryptionException e)
 		{
-			System.out.println("Error removed PKCS#7 padding!");
+			System.out.println("Error removing PKCS#7 padding!");
 			e.printStackTrace();
 		}
 	}
@@ -242,6 +242,7 @@ public class Set2
 
 	public static void main(String[] args) throws Exception
 	{ // yay just throw exceptions at hotspot!
+		HexUtils.setCharset();
 		System.out.println("Cryptopals Set 2 by TheApdayo");
 		System.out.println("Challenge 9----------------------------------------"); 
 		challenge9();
