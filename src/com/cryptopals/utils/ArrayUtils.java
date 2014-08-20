@@ -29,4 +29,12 @@ public class ArrayUtils {
 			dest[destOff + i] = input[i];
 		}
 	}
+	
+	public static byte[] resize(byte[] src, int newsize)
+	{
+		byte [] ret = new byte[newsize];
+		for(int i=0; i<src.length; i++)
+			ret[i] = src[i];
+		return ret;
+	}
 }

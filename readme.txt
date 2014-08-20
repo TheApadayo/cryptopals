@@ -22,8 +22,8 @@ Set2 - Complete
 	15. PKCS#7 padding validation - Complete
 	16. CBC bitflipping attacks - Complete
 Set3 - Incomplete
-	17. The CBC padding Oracle
-	18. Implement CTR, the stream cipher mode
+	17. The CBC padding Oracle - Complete
+	18. Implement CTR, the stream cipher mode - Complete
 	19. Break fixed-nonce CTR mode using substitions
 	20. Break fixed-nonce CTR statistically
 	21. Implement the MT19937 Mersenne Twister RNG

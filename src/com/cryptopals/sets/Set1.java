@@ -182,12 +182,12 @@ public class Set1
 		AESCipher cipher = new AESCipher(k, AESCipher.CIPHER_MODE_ENCRYPT, AESCipher.BLOCK_MODE_ECB, AESCipher.PADDING_NONE);
 		cipher.initData(plainText);
 		cipher.run();
-		System.out.println(HexUtils.toPrettyHexStr(cipher.getResult()));
+		System.out.println(HexUtils.toPrettyHexStr(cipher.getState()));
 
 		AESCipher cipher2 = new AESCipher(k, AESCipher.CIPHER_MODE_DECRYPT, AESCipher.BLOCK_MODE_ECB, AESCipher.PADDING_NONE);
-		cipher2.initData(cipher.getResult());
+		cipher2.initData(cipher.getState());
 		cipher2.run();
-		System.out.println(HexUtils.toNormalStr(cipher2.getResult()));
+		System.out.println(HexUtils.toNormalStr(cipher2.getState()));
 	}
 
 	public static void challenge8()

@@ -15,12 +15,12 @@ public class Set2
 		AESCipher cipher = new AESCipher(k, AESCipher.CIPHER_MODE_ENCRYPT, AESCipher.BLOCK_MODE_ECB, AESCipher.PADDING_PKCS7);
 		cipher.initData(FileUtils.readFull("resources/lipsum.txt").getBytes());
 		cipher.run();
-		System.out.println("Ciphertext: " + HexUtils.toHexStr(cipher.getResult()));
+		System.out.println("Ciphertext: " + HexUtils.toHexStr(cipher.getState()));
 
 		AESCipher cipher2 = new AESCipher(k, AESCipher.CIPHER_MODE_DECRYPT, AESCipher.BLOCK_MODE_ECB, AESCipher.PADDING_PKCS7);
-		cipher2.initData(cipher.getResult());
+		cipher2.initData(cipher.getState());
 		cipher2.run();
-		System.out.println("Plaintext: " + HexUtils.toNormalStr(cipher2.getResult()));
+		System.out.println("Plaintext: " + HexUtils.toNormalStr(cipher2.getState()));
 	}
 
 	public static void challenge10() throws Exception
@@ -32,7 +32,7 @@ public class Set2
 		cipher.setIV(iv);
 		cipher.run();
 		// stripping the pkcs7 isn't required for another couple challenges but its nicer here
-		System.out.println("Plaintext: " + HexUtils.toNormalStr(AESCipher.stripPKCS7(cipher.getResult())));
+		System.out.println("Plaintext: " + HexUtils.toNormalStr(cipher.getState()));
 	}
 
 	public static void challenge11() throws Exception
@@ -130,7 +130,7 @@ public class Set2
 		AESCipher de = new AESCipher(k, AESCipher.CIPHER_MODE_DECRYPT, AESCipher.BLOCK_MODE_ECB, AESCipher.PADDING_PKCS7);
 		en.initData(profile.getBytes());
 		en.run();
-		byte[] attackerBytes = en.getResult();
+		byte[] attackerBytes = en.getState();
 
 		// have fun here
 		// swap block 2 and block 4
@@ -143,7 +143,7 @@ public class Set2
 
 		de.initData(attackerBytes);
 		de.run();
-		KeyValueList profileObj = new KeyValueList(HexUtils.toNormalStr(de.getResult()));
+		KeyValueList profileObj = new KeyValueList(HexUtils.toNormalStr(de.getState()));
 		System.out.println("User's role is: " + profileObj.getValue("role"));
 	}
 
@@ -214,11 +214,11 @@ public class Set2
 		AESCipher de = new AESCipher(k, AESCipher.CIPHER_MODE_DECRYPT, AESCipher.BLOCK_MODE_ECB, AESCipher.PADDING_PKCS7);
 		en.initData(lipsum);
 		en.run();
-		de.initData(en.getResult());
+		de.initData(en.getState());
 		de.run();
 		try
 		{
-			AESCipher.stripPKCS7(de.getResult());
+			AESUtils.stripPKCS7(de.getState());
 			System.out.println("Successfully removed PKCS#7 padding");
 		} catch (EncryptionException e)
 		{
@@ -235,7 +235,7 @@ public class Set2
 		block[5] = (byte)(block[5] ^ 0x1); // fix semi colon
 		block[11] = (byte)(block[11] ^ 0x1); // fix equals sign
 		
-		AESUtils.setBlock(attackerBytes, block, 1);
+		AESUtils.setBlock(attackerBytes, block, 16, 1);
 		
 		System.out.println("admin is " + (BlackBox.challenge16_verify(attackerBytes) ? "true" : "false"));
 	}

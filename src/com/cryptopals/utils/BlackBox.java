@@ -5,6 +5,7 @@ import java.util.Random;
 
 import com.cryptopals.aes.AESCipher;
 import com.cryptopals.aes.AESKey;
+import com.cryptopals.aes.AESUtils;
 
 public class BlackBox
 {
@@ -28,7 +29,7 @@ public class BlackBox
 		}
 		cipher.initData(plaintext);
 		cipher.run();
-		return cipher.getResult();
+		return cipher.getState();
 	}
 
 	private static AESKey challenge12_hiddenKey;
@@ -46,7 +47,7 @@ public class BlackBox
 			plaintext[i + inputText.length] = secret[i];
 		cipher.initData(plaintext);
 		cipher.run();
-		return cipher.getResult();
+		return cipher.getState();
 	}
 
 	private static AESKey challenge14_hiddenKey;
@@ -75,7 +76,7 @@ public class BlackBox
 			plaintext[i + challenge14_nonce.length + inputText.length] = secret[i];
 		cipher.initData(plaintext);
 		cipher.run();
-		return cipher.getResult();
+		return cipher.getState();
 	}
 
 	private static AESKey challenge16_hiddenKey;
@@ -94,7 +95,7 @@ public class BlackBox
 		cipher.initData(plain.getBytes("UTF-8"));
 		cipher.setIV(challenge16_IV);
 		cipher.run();
-		return cipher.getResult();
+		return cipher.getState();
 	}
 
 	public static boolean challenge16_verify(byte[] cipherText)
@@ -103,7 +104,7 @@ public class BlackBox
 		cipher.initData(cipherText);
 		cipher.setIV(challenge16_IV);
 		cipher.run();
-		return HexUtils.toNormalStr(cipher.getResult()).contains(";admin=true;");
+		return HexUtils.toNormalStr(cipher.getState()).contains(";admin=true;");
 	}
 	
 	private static AESKey challenge17_hiddenKey;
@@ -117,13 +118,25 @@ public class BlackBox
 			challenge17_IV = AESCipher.generateRandomIV();
 
 		String[] lines = FileUtils.readLines("resources/set3_challenge17.txt");
-		byte[] input = lines[new Random().nextInt(lines.length)].getBytes();
-		AESCipher cipher = new AESCipher(challenge16_hiddenKey, AESCipher.CIPHER_MODE_ENCRYPT, AESCipher.BLOCK_MODE_CBC, AESCipher.PADDING_PKCS7);
-		return null;
+		byte[] input = Base64Converter.Base64toBytes(lines[new Random().nextInt(lines.length)]);
+		AESCipher cipher = new AESCipher(challenge17_hiddenKey, AESCipher.CIPHER_MODE_ENCRYPT, AESCipher.BLOCK_MODE_CBC, AESCipher.PADDING_PKCS7);
+		cipher.initData(input);
+		cipher.setIV(challenge17_IV);
+		cipher.run();
+		return cipher.getState();
 	}
 	
 	public static byte[] challenge17_IV()
 	{
 		return challenge17_IV;
+	}
+	
+	public static void challenge17_consume(byte[] data)
+	{
+		AESCipher cipher = new AESCipher(challenge17_hiddenKey, AESCipher.CIPHER_MODE_DECRYPT, AESCipher.BLOCK_MODE_CBC, AESCipher.PADDING_PKCS7);
+		cipher.initData(data);
+		cipher.setIV(challenge17_IV);
+		cipher.run();
+		AESUtils.stripPKCS7(cipher.getState()); // this will give us our exception
 	}
 }
