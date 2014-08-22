@@ -1,6 +1,7 @@
 package com.cryptopals.utils;
 
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Random;
 
 import com.cryptopals.aes.AESCipher;
@@ -138,5 +139,39 @@ public class BlackBox
 		cipher.setIV(challenge17_IV);
 		cipher.run();
 		AESUtils.stripPKCS7(cipher.getState()); // this will give us our exception
+	}
+	
+	public static ArrayList<byte[]> challenge19()
+	{
+		ArrayList<byte[]> ret = new ArrayList<byte[]>();
+		String[] lines = FileUtils.readLines("resources/set3_challenge19.txt");
+		AESKey k = AESKey.getRandomKey();
+		for(String line : lines)
+		{
+			byte[] data = Base64Converter.Base64toBytes(line);
+			AESCipher c = new AESCipher(k, AESCipher.CIPHER_MODE_STREAM, AESCipher.BLOCK_MODE_CTR);
+			c.initData(data);
+			c.run();
+			ret.add(c.getState());
+		}
+		return ret;
+	}
+	
+	public static byte[][] challenge20()
+	{
+		ArrayList<byte[]> ret = new ArrayList<byte[]>();
+		String[] lines = FileUtils.readLines("resources/set3_challenge20.txt");
+		AESKey k = AESKey.getRandomKey();
+		for(String line : lines)
+		{
+			byte[] data = Base64Converter.Base64toBytes(line);
+			AESCipher c = new AESCipher(k, AESCipher.CIPHER_MODE_STREAM, AESCipher.BLOCK_MODE_CTR);
+			c.initData(data);
+			c.run();
+			ret.add(c.getState());
+		}
+		byte[][] array = new byte[ret.size()][128];
+		ret.toArray(array);
+		return array;
 	}
 }

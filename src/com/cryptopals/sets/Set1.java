@@ -11,7 +11,6 @@ public class Set1
 {
 	public static void challenge1()
 	{
-		// challenge 1
 		byte[] c1Arr = HexUtils.toByteArray("49276d206b696c6c696e6720796f757220627261696e206c696b65206120706f69736f6e6f7573206d757368726f6f6d");
 		System.out.println("Should be: SSdtIGtpbGxpbmcgeW91ciBicmFpbiBsaWtlIGEgcG9pc29ub3VzIG11c2hyb29t");
 		;
@@ -20,7 +19,6 @@ public class Set1
 
 	public static void challenge2()
 	{
-		// challenge 2
 		byte[] c2Xor1 = HexUtils.toByteArray("1c0111001f010100061a024b53535009181c");
 		byte[] c2Xor2 = HexUtils.toByteArray("686974207468652062756c6c277320657965");
 		System.out.println("Should be: 746865206b696420646f6e277420706c6179");
@@ -30,7 +28,6 @@ public class Set1
 
 	public static void challenge3()
 	{
-		// challenge 3
 		byte[] c3Ciphertext = HexUtils.toByteArray("1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736");
 		// byte[] c3Ciphertext = HexUtils.toByteArray("196d283d28");
 		System.out.println("possible decoded values for ciphertext: ");
@@ -45,7 +42,6 @@ public class Set1
 
 	public static void challenge4() throws Exception
 	{
-		// challenge 4
 		BufferedReader c4Input = new BufferedReader(new FileReader(new File("resources/set1_challenge4.txt")));
 		String c4Line;
 		System.out.println("possible decoded values for ciphertext: ");
@@ -66,10 +62,6 @@ public class Set1
 
 	public static void challenge5() throws Exception
 	{
-		// challenge 5
-		// they tell us never to depend on encoding but since we're specifiying
-		// it here
-		// it should be ok
 		byte[] c4Plaintext = ("Burning 'em, if you ain't quick and nimble I go crazy when I hear a cymbal").getBytes("UTF-8");
 		byte[] c4Key = "ICE".getBytes("UTF-8");
 		System.out.println("Should be: 0b3637272a2b2e63622c2e69692a23693a2a3c6324202d623d63343c2a26226324272765272a282b2f20430a652e2c652a3124333a653e2b2027630c692b20283165286326302e27282f");
@@ -78,7 +70,6 @@ public class Set1
 
 	public static void challenge6() throws Exception
 	{
-		// challege 6
 		System.out.println("Testing Hamming Distance: " + HexUtils.HammingDistance("this is a test".getBytes("UTF-8"), "wokka wokka!!!".getBytes("UTF-8")));
 
 		byte[] ciphertext = FileUtils.readBase64("resources/set1_challenge6.txt");
