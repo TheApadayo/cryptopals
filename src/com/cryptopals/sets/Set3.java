@@ -59,16 +59,16 @@ public class Set3
 				AESUtils.setBlock(plaintext, plainBlock, 16, b); // copy to final dest
 			}
 		}
-		System.out.println(HexUtils.toNormalStr(AESUtils.stripPKCS7(plaintext)));
+		System.out.println(HexUtils.toNormalStr(AESPadding.stripPKCS7(plaintext)));
 	}
 
 	public static void challenge18()
 	{
 		AESKey k = new AESKey("YELLOW SUBMARINE".getBytes());
-		AESCipher c = new AESCipher(k, AESCipher.CIPHER_MODE_STREAM);
-		c.initData(Base64Converter.Base64toBytes("L77na/nrFsKvynd6HzOoG7GHTLXsTVu9qvY/2syLXzhPweyyMTJULu/6/kXX0KSvoOLSFQ=="));
-		c.run();
-		System.out.println(HexUtils.toNormalStr(c.getState()));
+		AESStreamCipher cipher = new AESStreamCipher(k);
+		byte[] data = Base64Converter.Base64toBytes("L77na/nrFsKvynd6HzOoG7GHTLXsTVu9qvY/2syLXzhPweyyMTJULu/6/kXX0KSvoOLSFQ==");
+		cipher.process(data);
+		System.out.println(HexUtils.toNormalStr(data));
 	}
 
 	public static void challenge19()

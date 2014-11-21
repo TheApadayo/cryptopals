@@ -11,28 +11,22 @@ public class Set2
 
 	public static void challenge9() throws Exception
 	{
-		AESKey k = new AESKey("YELLOW SUBMARINE".getBytes());
-		AESCipher cipher = new AESCipher(k, AESCipher.CIPHER_MODE_ENCRYPT, AESCipher.BLOCK_MODE_ECB, AESCipher.PADDING_PKCS7);
-		cipher.initData(FileUtils.readFull("resources/lipsum.txt").getBytes());
-		cipher.run();
-		System.out.println("Ciphertext: " + HexUtils.toHexStr(cipher.getState()));
-
-		AESCipher cipher2 = new AESCipher(k, AESCipher.CIPHER_MODE_DECRYPT, AESCipher.BLOCK_MODE_ECB, AESCipher.PADDING_PKCS7);
-		cipher2.initData(cipher.getState());
-		cipher2.run();
-		System.out.println("Plaintext: " + HexUtils.toNormalStr(cipher2.getState()));
+		byte[] padded = AESPadding.PKCS7Pad("Hello World".getBytes());
+		System.out.println(HexUtils.toHexStr(padded));
+		System.out.println(HexUtils.toNormalStr(padded));
 	}
 
 	public static void challenge10() throws Exception
 	{
 		AESKey k = new AESKey("YELLOW SUBMARINE".getBytes());
 		byte[] iv = new byte[16]; // gives us all nulls
-		AESCipher cipher = new AESCipher(k, AESCipher.CIPHER_MODE_DECRYPT, AESCipher.BLOCK_MODE_CBC, AESCipher.PADDING_PKCS7);
-		cipher.initData(FileUtils.readBase64("resources/set2_challenge10.txt"));
+		AESBlockCipher cipher = new AESBlockCipher(k, AESBlockCipher.BLOCK_MODE_CBC);
+		byte[] data = FileUtils.readBase64("resources/set2_challenge10.txt");
 		cipher.setIV(iv);
-		cipher.run();
+		cipher.decrypt(data);
+		
 		// stripping the pkcs7 isn't required for another couple challenges but its nicer here
-		System.out.println("Plaintext: " + HexUtils.toNormalStr(cipher.getState()));
+		System.out.println("Plaintext: " + HexUtils.toNormalStr(data));
 	}
 
 	public static void challenge11() throws Exception
@@ -126,24 +120,22 @@ public class Set2
 	{
 		String profile = challenge13_profile_for("aaaaaaaaaaadmin" + ((char)11) + ((char)11) + ((char)11) + ((char)11) + ((char)11) + ((char)11) + ((char)11) + ((char)11) + ((char)11) + ((char)11) + ((char)11) + "com");
 		AESKey k = AESKey.getRandomKey();
-		AESCipher en = new AESCipher(k, AESCipher.CIPHER_MODE_ENCRYPT, AESCipher.BLOCK_MODE_ECB, AESCipher.PADDING_PKCS7);
-		AESCipher de = new AESCipher(k, AESCipher.CIPHER_MODE_DECRYPT, AESCipher.BLOCK_MODE_ECB, AESCipher.PADDING_PKCS7);
-		en.initData(profile.getBytes());
-		en.run();
-		byte[] attackerBytes = en.getState();
+		AESBlockCipher ci = new AESBlockCipher(k, AESBlockCipher.BLOCK_MODE_ECB);
+		byte[] profileBytes = profile.getBytes();
+		profileBytes = AESPadding.PKCS7Pad(profileBytes);
+		ci.encrypt(profileBytes);
 
 		// have fun here
 		// swap block 2 and block 4
 		for (int i = 0; i < 16; i++)
 		{
-			byte tmp = attackerBytes[16 + i];
-			attackerBytes[16 + i] = attackerBytes[48 + i];
-			attackerBytes[48 + i] = tmp;
+			byte tmp = profileBytes[16 + i];
+			profileBytes[16 + i] = profileBytes[48 + i];
+			profileBytes[48 + i] = tmp;
 		}
 
-		de.initData(attackerBytes);
-		de.run();
-		KeyValueList profileObj = new KeyValueList(HexUtils.toNormalStr(de.getState()));
+		ci.decrypt(profileBytes);
+		KeyValueList profileObj = new KeyValueList(HexUtils.toNormalStr(profileBytes));
 		System.out.println("User's role is: " + profileObj.getValue("role"));
 	}
 
@@ -208,17 +200,10 @@ public class Set2
 
 	public static void challenge15()
 	{
-		AESKey k = AESKey.getRandomKey();
-		byte[] lipsum = FileUtils.readBytes("resources/lipsum.txt");
-		AESCipher en = new AESCipher(k, AESCipher.CIPHER_MODE_ENCRYPT, AESCipher.BLOCK_MODE_ECB, AESCipher.PADDING_PKCS7);
-		AESCipher de = new AESCipher(k, AESCipher.CIPHER_MODE_DECRYPT, AESCipher.BLOCK_MODE_ECB, AESCipher.PADDING_PKCS7);
-		en.initData(lipsum);
-		en.run();
-		de.initData(en.getState());
-		de.run();
+		byte[] padded = AESPadding.PKCS7Pad("Hello World!".getBytes());
 		try
 		{
-			AESUtils.stripPKCS7(de.getState());
+			AESPadding.stripPKCS7(padded);
 			System.out.println("Successfully removed PKCS#7 padding");
 		} catch (EncryptionException e)
 		{

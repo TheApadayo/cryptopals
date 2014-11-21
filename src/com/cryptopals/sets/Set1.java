@@ -169,16 +169,12 @@ public class Set1
 	{
 		byte[] keyBytes = "YELLOW SUBMARINE".getBytes("UTF-8");
 		AESKey k = new AESKey(keyBytes);
-		byte[] plainText = FileUtils.readFull("resources/lipsum.txt").getBytes("UTF-8");
-		AESCipher cipher = new AESCipher(k, AESCipher.CIPHER_MODE_ENCRYPT, AESCipher.BLOCK_MODE_ECB, AESCipher.PADDING_NONE);
-		cipher.initData(plainText);
-		cipher.run();
-		System.out.println(HexUtils.toPrettyHexStr(cipher.getState()));
-
-		AESCipher cipher2 = new AESCipher(k, AESCipher.CIPHER_MODE_DECRYPT, AESCipher.BLOCK_MODE_ECB, AESCipher.PADDING_NONE);
-		cipher2.initData(cipher.getState());
-		cipher2.run();
-		System.out.println(HexUtils.toNormalStr(cipher2.getState()));
+		byte[] data = FileUtils.readFull("resources/lipsum.txt").getBytes("UTF-8");
+		AESBlockCipher cipher = new AESBlockCipher(k);
+		cipher.encrypt(data);
+		System.out.println(HexUtils.toPrettyHexStr(data));
+		cipher.decrypt(data);
+		System.out.println(HexUtils.toNormalStr(data));
 	}
 
 	public static void challenge8()

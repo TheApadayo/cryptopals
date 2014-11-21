@@ -1,5 +1,6 @@
 package com.cryptopals.aes;
 
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -60,18 +61,16 @@ public class AESUtils {
 			cipher[i + (block * data.length)] = data[i];
 		}
 	}
-
-	public static byte[] stripPKCS7(byte[] arr)
+	
+	/**
+	 * Generate a cryptografically secure random IV
+	 */
+	public static byte[] generateRandomIV()
 	{
-		byte pad = arr[arr.length -1];
-		if (pad < 1 || pad > 16)
-			throw new EncryptionException("Invalid PKCS#7 padding: " + HexUtils.toHexStr(arr));
-		for(int i=0; i<pad; i++)
-		{
-			if(arr[arr.length - pad + i] != pad)
-				throw new EncryptionException("Invalid PKCS#7 padding: " + HexUtils.toHexStr(arr));
-		}
-		return ArrayUtils.copy(arr, 0, arr.length - arr[arr.length - 1]);
+		byte[] ret = new byte[16];
+		SecureRandom rng = new SecureRandom();
+		rng.nextBytes(ret);
+		return ret;
 	}
 
 }
