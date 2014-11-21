@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import com.cryptopals.aes.*;
+import com.cryptopals.random.PsuedoRandom;
 
 public class BlackBox
 {
@@ -26,7 +27,7 @@ public class BlackBox
 		{
 			data[i + before] = inputText[i];
 		}
-		data = AESPadding.PKCS7Pad(data);
+		data = AESPadding.padPKCS7(data);
 		cipher.encrypt(data);
 		return data;
 	}
@@ -44,7 +45,7 @@ public class BlackBox
 			data[i] = inputText[i];
 		for (int i = 0; i < secret.length; i++)
 			data[i + inputText.length] = secret[i];
-		data = AESPadding.PKCS7Pad(data);
+		data = AESPadding.padPKCS7(data);
 		cipher.encrypt(data);
 		return data;
 	}
@@ -73,7 +74,7 @@ public class BlackBox
 			data[i + challenge14_nonce.length] = inputText[i];
 		for (int i = 0; i < secret.length; i++)
 			data[i + challenge14_nonce.length + inputText.length] = secret[i];
-		data = AESPadding.PKCS7Pad(data);
+		data = AESPadding.padPKCS7(data);
 		cipher.encrypt(data);
 		return data;
 	}
@@ -124,6 +125,7 @@ public class BlackBox
 		byte[] data = Base64Converter.Base64toBytes(lines[new Random().nextInt(lines.length)]);
 		AESBlockCipher cipher = new AESBlockCipher(challenge17_hiddenKey, AESBlockCipher.BLOCK_MODE_CBC);
 		cipher.setIV(challenge17_IV);
+		data = AESPadding.padPKCS7(data);
 		cipher.encrypt(data);
 		return data;
 	}
@@ -171,5 +173,14 @@ public class BlackBox
 		byte[][] array = new byte[ret.size()][128];
 		ret.toArray(array);
 		return array;
+	}
+	
+	public static int challenge22() throws Exception
+	{
+		Random r = new Random();
+		Thread.sleep((r.nextInt(90) + 10) * 1000);
+		PsuedoRandom pr = new PsuedoRandom(System.currentTimeMillis());
+		Thread.sleep((r.nextInt(90) + 10) * 1000);
+		return pr.nextInt();
 	}
 }

@@ -12,6 +12,7 @@ public class AESStreamCipher extends AESCipher {
 		streamCtr = 0;
 		streamPos = 0;
 		curBlock = new byte[AESCipher.BLOCKSIZE];
+		_Nonce = new byte[8];
 	}
 	
 	public void setNonce(byte[] n)
@@ -49,6 +50,7 @@ public class AESStreamCipher extends AESCipher {
 		{
 			for(int j=0; j<AESCipher.BLOCKSIZE; j++)
 			{
+				if(i + j == d.length) break;
 				d[i + j] ^= curBlock[streamPos % AESCipher.BLOCKSIZE];
 				streamPos++;
 				if(streamPos % AESCipher.BLOCKSIZE == 0)

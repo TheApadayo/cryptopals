@@ -5,7 +5,7 @@ import com.cryptopals.utils.HexUtils;
 
 public class AESPadding {
 	
-	public static byte[] PKCS7Pad(byte[] d)
+	public static byte[] padPKCS7(byte[] d)
 	{
 		int blocks = (d.length / AESCipher.BLOCKSIZE) + 1;
 		byte[] ret = new byte[blocks * AESCipher.BLOCKSIZE];

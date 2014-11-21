@@ -2,6 +2,7 @@ package com.cryptopals.sets;
 
 import java.util.ArrayList;
 
+import com.cryptopals.random.PsuedoRandom;
 import com.cryptopals.simpleciphers.*;
 import com.cryptopals.utils.*;
 import com.cryptopals.aes.*;
@@ -146,7 +147,6 @@ public class Set3
 			if (encrypted[i].length < len)
 				len = encrypted[i].length;
 		}
-		byte[][] decrypted = new byte[encrypted.length][len];
 		
 		System.out.println(len);
 
@@ -197,13 +197,76 @@ public class Set3
 			}
 		}
 	}
+	
+	public static void challenge21()
+	{
+		PsuedoRandom r = new PsuedoRandom();
+		System.out.println("Random Numbers: ");
+		for(int i=0; i<32; i++)
+		{
+			System.out.print(r.nextInt() + ", ");
+		}
+		System.out.println();
+	}
+	
+	public static void challenge22() throws Exception
+	{
+		System.out.println("Doing black box thingy... might take a while");
+		int val = BlackBox.challenge22();
+		System.out.println("Done");
+		
+		long millis = System.currentTimeMillis();
+		
+		PsuedoRandom r = new PsuedoRandom(); 
+		while(true)
+		{
+			r.setSeed(millis);
+			if(r.nextInt() == val) break;
+			millis--;
+		}
+		System.out.println("Seed was " + millis);
+	}
+	
+	public static void challenge23()
+	{
+		PsuedoRandom r = new PsuedoRandom();
+		int[] state = new int[624];
+				
+		// reversing the tempering function
+		for(int i=0; i<624; i++)
+		{
+			int x = r.nextInt();
+			x ^= (x >>> 18);
+			x ^= (x << 15) & 0xefc60000;
+			int y = x;
+			// we do this a couple of times cause it messes up the bits and we need to recover them
+			x = y ^ ((x << 7) & 0x9d2c5680);
+			x = y ^ ((x << 7) & 0x9d2c5680);
+			x = y ^ ((x << 7) & 0x9d2c5680);
+			x = y ^ ((x << 7) & 0x9d2c5680);
+			y = x;
+			x = y ^ ((x >>> 11));
+			x = y ^ ((x >>> 11));
+			state[i] = x;
+		}
+		PsuedoRandom r2 = PsuedoRandom.cloneFromState(state);
+		
+		int num1 = r.nextInt();
+		int num2 = r2.nextInt();
+		System.out.println(num1 + " == " + num2);
+	}
+	
+	public static void challenge24()
+	{
+		
+	}
 
 	public static void main(String[] args) throws Exception
 	{ // yay just throw exceptions at hotspot!
 		HexUtils.setCharset();
 
 		System.out.println("Cryptopals Set 3 by TheApdayo");
-		System.out.println("Challenge 17----------------------------------------");
+		/*System.out.println("Challenge 17----------------------------------------");
 		challenge17();
 		System.out.println("Challenge 18----------------------------------------");
 		challenge18();
@@ -211,6 +274,14 @@ public class Set3
 		challenge19();
 		System.out.println("Challenge 20----------------------------------------");
 		challenge20();
+		System.out.println("Challenge 21----------------------------------------");
+		challenge21();
+		System.out.println("Challenge 22----------------------------------------");
+		challenge22();
+		System.out.println("Challenge 23----------------------------------------");
+		challenge23();*/
+		System.out.println("Challenge 24----------------------------------------");
+		challenge24();
 	}
 
 }

@@ -11,7 +11,7 @@ public class Set2
 
 	public static void challenge9() throws Exception
 	{
-		byte[] padded = AESPadding.PKCS7Pad("Hello World".getBytes());
+		byte[] padded = AESPadding.padPKCS7("Hello World".getBytes());
 		System.out.println(HexUtils.toHexStr(padded));
 		System.out.println(HexUtils.toNormalStr(padded));
 	}
@@ -122,7 +122,7 @@ public class Set2
 		AESKey k = AESKey.getRandomKey();
 		AESBlockCipher ci = new AESBlockCipher(k, AESBlockCipher.BLOCK_MODE_ECB);
 		byte[] profileBytes = profile.getBytes();
-		profileBytes = AESPadding.PKCS7Pad(profileBytes);
+		profileBytes = AESPadding.padPKCS7(profileBytes);
 		ci.encrypt(profileBytes);
 
 		// have fun here
@@ -200,7 +200,7 @@ public class Set2
 
 	public static void challenge15()
 	{
-		byte[] padded = AESPadding.PKCS7Pad("Hello World!".getBytes());
+		byte[] padded = AESPadding.padPKCS7("Hello World!".getBytes());
 		try
 		{
 			AESPadding.stripPKCS7(padded);
