@@ -2,7 +2,7 @@ package com.cryptopals.sets;
 
 import java.util.ArrayList;
 
-import com.cryptopals.random.PsuedoRandom;
+import com.cryptopals.random.*;
 import com.cryptopals.simpleciphers.*;
 import com.cryptopals.utils.*;
 import com.cryptopals.aes.*;
@@ -258,7 +258,7 @@ public class Set3
 	
 	public static void challenge24()
 	{
-		
+
 	}
 
 	public static void main(String[] args) throws Exception

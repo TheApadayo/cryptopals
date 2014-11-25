@@ -12,7 +12,7 @@ public class AESKey {
 	protected int keySize;
 	protected int expandedKeySize;
 
-	/*
+	/**
 	 * Make an AES key with the following bytes and prepare it for use
 	 */
 	public AESKey(byte[] data) {
@@ -22,8 +22,16 @@ public class AESKey {
 		keyData = data;
 		expandKey();
 	}
+	
+	/**
+	 * Get the key bytes for this key;
+	 */
+	public byte[] keyBytes()
+	{
+		return keyData;
+	}
 
-	/*
+	/**
 	 * Get the Round AES key for use in the crypto
 	 */
 	protected byte[] getRoundKey(int r)
@@ -34,7 +42,7 @@ public class AESKey {
 		return ret;
 	}
 	
-	/*
+	/**
 	 * Rotate 4 bytes by one spot
 	 */
 	private byte[] rotate(byte[] d)
@@ -46,7 +54,7 @@ public class AESKey {
 	    return d;
 	}
 	
-	/*
+	/**
 	 * Core Expansion function for the key schedule
 	 */
 	private void expandCore(byte[] word, int iter)
@@ -60,7 +68,7 @@ public class AESKey {
 		word[0] = (byte)(word[0] ^ AESLookup.rcon(iter));
 	}
 	
-	/*
+	/**
 	 * Expands the given key to a round key for use.
 	 */
 	private void expandKey()
@@ -102,7 +110,7 @@ public class AESKey {
 		}
 	}
 	
-	/*
+	/**
 	 * Get the number of rounds for the keysize
 	 */
 	protected int numRounds()
@@ -116,6 +124,9 @@ public class AESKey {
 		return -1;
 	}
 	
+	/**
+	 * Generates a random key using crypto secure random
+	 */
 	public static AESKey getRandomKey()
 	{
 		SecureRandom r = new SecureRandom();

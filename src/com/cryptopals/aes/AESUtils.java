@@ -41,13 +41,12 @@ public class AESUtils {
 	public static byte[] getBlock(byte[] data, int size, int block, boolean pad)
 	{
 		byte[] ret = new byte[size];
-		int padByte = 0;
 		for(int i=0; i<size; i++)
 		{
 			if(block * size + i < data.length)
 				ret[i] = data[block * size + i];
-			else if(pad) { if(padByte == 0) padByte = size - i;
-				ret[i] = (byte)padByte;
+			else if(pad) { 
+				ret[i] = 0;
 			} else throw new EncryptionException("Trying to get non existant block!");
 		}
 		return ret;

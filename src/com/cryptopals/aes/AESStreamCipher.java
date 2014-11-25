@@ -64,5 +64,12 @@ public class AESStreamCipher extends AESCipher {
 		streamCtr = 0;
 		streamPos = 0;
 	}
+	
+	public void setStreamPos(int s)
+	{
+		streamPos = s;
+		streamCtr = streamPos / AESCipher.BLOCKSIZE;
+		generateKeyBytes();
+	}
 
 }

@@ -36,8 +36,25 @@ public class HexUtils
 		String s = "";
 		for (byte b : arr)
 		{
-			s += hexKey.charAt((b & 0xF0) >> 4);
-			s += hexKey.charAt(b & 0x0F);
+			s += hexKey.charAt((b >> 4) & 0x0F);
+			s += hexKey.charAt((b >> 0) & 0x0F);
+		}
+		return s;
+	}
+	
+	public static String toHexStr(int[] arr)
+	{
+		String s = "";
+		for (int b : arr)
+		{
+			s += hexKey.charAt((b >> 28) & 0x0F);
+			s += hexKey.charAt((b >> 24) & 0x0F);
+			s += hexKey.charAt((b >> 20) & 0x0F);
+			s += hexKey.charAt((b >> 16) & 0x0F);
+			s += hexKey.charAt((b >> 12) & 0x0F);
+			s += hexKey.charAt((b >> 8) & 0x0F);
+			s += hexKey.charAt((b >> 4) & 0x0F);
+			s += hexKey.charAt((b >> 0) & 0x0F);
 		}
 		return s;
 	}
@@ -59,10 +76,31 @@ public class HexUtils
 		int i = 0;
 		for (byte b : arr)
 		{
-			if (i % 32 == 0 && i != 0)
+			if (i % 16 == 0 && i != 0)
 				s += "\n";
 			s += hexKey.charAt((b & 0xF0) >> 4);
 			s += hexKey.charAt(b & 0x0F);
+			i++;
+		}
+		return s;
+	}
+	
+	public static String toPrettyHexStr(int[] arr)
+	{
+		String s = "";
+		int i = 0;
+		for (int b : arr)
+		{
+			if (i % 4 == 0 && i != 0)
+				s += "\n";
+			s += hexKey.charAt((b >> 28) & 0x0F);
+			s += hexKey.charAt((b >> 24) & 0x0F);
+			s += hexKey.charAt((b >> 20) & 0x0F);
+			s += hexKey.charAt((b >> 16) & 0x0F);
+			s += hexKey.charAt((b >> 12) & 0x0F);
+			s += hexKey.charAt((b >> 8) & 0x0F);
+			s += hexKey.charAt((b >> 4) & 0x0F);
+			s += hexKey.charAt((b >> 0) & 0x0F);
 			i++;
 		}
 		return s;
@@ -150,6 +188,15 @@ public class HexUtils
 		} catch (Exception e)
 		{
 			e.printStackTrace();
+		}
+	}
+	
+	public static void verfiyASCII(byte[] d) throws Exception
+	{
+		for(int i = 0; i<d.length; i++)
+		{
+			if(d[i] < 0) // this represents an ascii value over 127 unsigned but java is signed and stupid
+				throw new Exception("String \"" + HexUtils.toHexStr(d) + "\" contains invalid ascii code at pos " + i);
 		}
 	}
 

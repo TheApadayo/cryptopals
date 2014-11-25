@@ -30,6 +30,14 @@ Set3 - Incomplete
 	22. Crack an MT19937 seed - Complete
 	23. Clone an MT19937 RNG from its output - Complete
 	24. Create the MT19937 stream cipher and break it
-Set4 - Unattempted
+Set4 - Incomplete
+	25. Break "random access read/write" AES CTR - Complete
+	26. CTR bitflipping - Complete
+	27. Recover the key from CBC with IV=Key - Complete
+	28. Implement a SHA-1 keyed MAC - Complete
+	29. Break a SHA-1 keyed MAC using length extension
+	30. Break an MD4 keyed MAC using length extension
+	31. Implement and break HMAC-SHA1 with an artificial timing leak
+	32. Break HMAC-SHA1 with a slightly less artificial timing leak
 Set5 - Unattempted
 Set6 - Unattempted

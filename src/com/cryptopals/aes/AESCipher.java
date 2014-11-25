@@ -18,43 +18,9 @@ public class AESCipher
 	
 	public AESCipher(AESKey k)
 	{
+		if(k == null) throw new EncryptionException("Can't create cipher without a key!");
 		key = k;
 	}
-
-	/**
-	 * Run the Cipher
-	 */
-	/*
-	public void run()
-	{
-		if (blockMode == BLOCK_MODE_CBC && iv == null)
-			throw new EncryptionException("Cannot run cipher in CBC mode without IV!");
-		switch (cipherMode)
-		{
-		case CIPHER_MODE_ENCRYPT:
-			encrypt();
-			break;
-		case CIPHER_MODE_DECRYPT:
-			decrypt();
-			break;
-		case CIPHER_MODE_STREAM:
-			streamMode();
-			break;
-		}
-	}
-
-	private void streamMode()
-	{
-		for(int i=0; i<blocks.length; i++)
-		{
-			if(streamKeyBytes.isEmpty()) getStreamKeyBytes();
-			result[i] = (byte)(blocks[i] ^ streamKeyBytes.removeFirst());
-		}
-	}
-	*/
-	/*
-	
-	*/
 
 	/**
 	 * Encrypt one block of data

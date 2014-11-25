@@ -12,6 +12,11 @@ public class ArrayUtils {
 		return ret;
 	}
 	
+	public static byte[] duplicate(byte[] input)
+	{
+		return copy(input, 0, input.length);
+	}
+	
 	public static byte[] fill(byte b, int count)
 	{
 		byte[] ret = new byte[count];

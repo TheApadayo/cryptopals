@@ -16,8 +16,8 @@ public final class PsuedoRandom {
     private final static int B = 0x9d2c5680;
     private final static int C = 0xefc60000;
 
-    private transient int[] state;
-    private transient int index;
+    private int[] state;
+    private int index;
 
     public PsuedoRandom() {
             setSeed(System.currentTimeMillis());
@@ -31,15 +31,15 @@ public final class PsuedoRandom {
             setSeed(seed);
     }
 
-    public final synchronized void setSeed(long seed) {
+    public void setSeed(long seed) {
             setSeed(new int[] {(int) seed, (int) (seed >>> 32)});
     }
 
-    public final void setSeed(byte[] buffer) {
+    public void setSeed(byte[] buffer) {
             setSeed(packBytes(buffer));
     }
 
-    private final void setSeed(int seed) {
+    private void setSeed(int seed) {
             if (state == null) {
                     state = new int[N];
             }
@@ -49,7 +49,7 @@ public final class PsuedoRandom {
             }
     }
 
-    public final synchronized void setSeed(int[] buffer) {
+    public void setSeed(int[] buffer) {
             int i = 1;
             int j = 0;
             int k = (N > buffer.length ? N : buffer.length);
@@ -79,7 +79,7 @@ public final class PsuedoRandom {
             state[0] = UPPER_MASK;
     }
 
-    public final synchronized int next(int bits) {
+    public int next(int bits) {
             int y, i;
             if (index >= N) {
                     for (i = 0; i < N - M; i++) {
@@ -104,9 +104,14 @@ public final class PsuedoRandom {
             return (y >>> (32 - bits));
     }
     
-    public final synchronized int nextInt()
+    public int nextInt()
     {
     	return next(32);
+    }
+    
+    public byte nextByte()
+    {
+    	return (byte)next(8);
     }
 
     public static int[] packBytes(byte[] buffer) {

@@ -5,7 +5,8 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import com.cryptopals.aes.*;
-import com.cryptopals.random.PsuedoRandom;
+import com.cryptopals.random.*;
+import com.cryptopals.simpleciphers.*;
 
 public class BlackBox
 {
@@ -182,5 +183,101 @@ public class BlackBox
 		PsuedoRandom pr = new PsuedoRandom(System.currentTimeMillis());
 		Thread.sleep((r.nextInt(90) + 10) * 1000);
 		return pr.nextInt();
+	}
+	
+	public static byte[] challenge24(byte[] plain)
+	{
+		SecureRandom rng = new SecureRandom();
+		RNGStreamCipher cipher = new RNGStreamCipher(rng.nextLong());
+		byte[] data = new byte[plain.length + rng.nextInt(500)];
+		rng.nextBytes(data);
+		for(int i=0; i<plain.length; i++)
+		{
+			data[i + (data.length - plain.length)] = plain[i];
+		}
+		cipher.process(data);
+		return data;
+	}
+	
+	private static AESKey challenge25_key;
+	
+	public static byte[] challenge25()
+	{
+		// get the data
+		byte[] data = FileUtils.readBase64("resources/set4_challenge25.txt");
+		AESBlockCipher cipher = new AESBlockCipher(new AESKey("YELLOW SUBMARINE".getBytes()), AESBlockCipher.BLOCK_MODE_ECB);
+		cipher.decrypt(data);
+		
+		// now re-encrypt it
+		challenge25_key = AESKey.getRandomKey();
+		AESStreamCipher strm = new AESStreamCipher(challenge25_key);
+		strm.process(data);
+		
+		return data;
+	}
+	
+	public static byte[] challenge25_edit(byte[] ciphertext, int offset, byte[] newplain)
+	{
+		AESStreamCipher strm = new AESStreamCipher(challenge25_key);
+		
+		byte[] data = new byte[ciphertext.length];
+		ArrayUtils.copy(data, newplain, offset, newplain.length);
+		strm.process(data);
+		
+		byte[] ret = ArrayUtils.duplicate(ciphertext);
+		ArrayUtils.copy(ret, data, offset, data.length);
+		
+		return ret;
+	}
+	
+	private static AESKey challenge26_hiddenKey;
+
+	public static byte[] challenge26_encrypt(String input) throws Exception
+	{
+		if (challenge26_hiddenKey == null)
+			challenge26_hiddenKey = AESKey.getRandomKey();
+
+		input = input.replace('=', '.').replace(';', '.');
+		AESStreamCipher cipher = new AESStreamCipher(challenge26_hiddenKey);
+		
+		String plain = "comment1=cooking%20MCs;userdata=" + input + ";comment2=%20like%20a%20pound%20of%20bacon";
+		byte[] data = plain.getBytes();
+		
+		cipher.process(data);
+		return data;
+	}
+
+	public static boolean challenge26_verify(byte[] cipherText)
+	{
+		AESStreamCipher cipher = new AESStreamCipher(challenge26_hiddenKey);
+		byte[] data = new byte[cipherText.length];
+		for(int i=0; i<cipherText.length; i++)
+			data[i] = cipherText[i];
+		cipher.process(data);
+		return HexUtils.toNormalStr(data).contains(";admin=true;");
+	}
+	
+	private static AESKey challenge27_hiddenKey;
+	public static byte[] challenge27_encrypt(byte[] data)
+	{
+		if(challenge27_hiddenKey == null)
+			challenge27_hiddenKey = AESKey.getRandomKey();
+		byte[] ret = ArrayUtils.duplicate(data);
+		AESBlockCipher cipher = new AESBlockCipher(challenge27_hiddenKey, AESBlockCipher.BLOCK_MODE_CBC);
+		cipher.setIV(challenge27_hiddenKey.keyBytes());
+		cipher.encrypt(ret);
+		return ret;
+	}
+	
+	public static byte[] challenge27_decrypt(byte[] data) throws Exception
+	{
+		if(challenge27_hiddenKey == null)
+			challenge27_hiddenKey = AESKey.getRandomKey();
+		byte[] ret = ArrayUtils.duplicate(data);
+		AESBlockCipher cipher = new AESBlockCipher(challenge27_hiddenKey, AESBlockCipher.BLOCK_MODE_CBC);
+		cipher.setIV(challenge27_hiddenKey.keyBytes());
+		cipher.decrypt(ret);
+		HexUtils.verfiyASCII(ret); // this throws our exception
+		return ret;
 	}
 }
